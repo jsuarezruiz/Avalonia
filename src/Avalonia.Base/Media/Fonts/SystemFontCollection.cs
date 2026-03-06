@@ -25,6 +25,8 @@ namespace Avalonia.Media.Fonts
 
         public override Uri Key => FontManager.SystemFontsKey;
 
+        protected override bool AllowNearestWeightMatch => false;
+
         public override bool TryGetGlyphTypeface(string familyName, FontStyle style, FontWeight weight,
             FontStretch stretch, [NotNullWhen(true)] out GlyphTypeface? glyphTypeface)
         {

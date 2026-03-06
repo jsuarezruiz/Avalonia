@@ -619,5 +619,32 @@ namespace Avalonia.Skia.UnitTests.Media
             Assert.Equal("Inter", typeface.GlyphTypeface.FamilyName);
             Assert.Equal(requestedStretch, typeface.Stretch);
         }
+
+        [Theory]
+        [InlineData(FontWeight.Bold, FontWeight.Normal)]
+        [InlineData(FontWeight.Black, FontWeight.Light)]
+        [InlineData(FontWeight.SemiBold, FontWeight.Thin)]
+        public void TryGetGlyphTypeface_HeavierWeight_Should_Not_Propagate_To_LighterWeight(
+            FontWeight heavyWeight, FontWeight lightWeight)
+        {
+            using var app = UnitTestApplication.Start(TestServices.MockPlatformRenderInterface.With(fontManagerImpl: new FontManagerImpl()));
+
+            var fontManager = FontManager.Current;
+            var fontFamily = fontManager.DefaultFontFamily;
+
+            Assert.True(fontManager.TryGetGlyphTypeface(
+                new Typeface(fontFamily, FontStyle.Normal, heavyWeight, FontStretch.Normal),
+                out var heavyTypeface));
+
+            Assert.True(fontManager.TryGetGlyphTypeface(
+                new Typeface(fontFamily, FontStyle.Normal, lightWeight, FontStretch.Normal),
+                out var lightTypeface));
+
+            Assert.True(
+                lightTypeface.Weight < heavyTypeface.Weight,
+                $"Expected lighter weight ({lightWeight}) typeface to have lower weight than heavier ({heavyWeight}), " +
+                $"but got {lightTypeface.Weight} >= {heavyTypeface.Weight}. " +
+                $"The heavier weight may have propagated to the lighter weight request.");
+        }
     }
 }

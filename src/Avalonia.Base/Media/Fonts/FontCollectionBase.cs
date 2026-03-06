@@ -31,6 +31,13 @@ namespace Avalonia.Media.Fonts
 
         public abstract Uri Key { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the collection should return the nearest available weight
+        /// when an exact match is not found. Override to <see langword="false"/> when the underlying
+        /// source can supply any weight on demand (e.g. the platform font manager).
+        /// </summary>
+        protected virtual bool AllowNearestWeightMatch => true;
+
         public int Count => _fontFamilies.Length;
 
         public FontFamily this[int index] => _fontFamilies[index];
@@ -478,6 +485,11 @@ namespace Avalonia.Media.Fonts
                         if (TryCreateSyntheticGlyphTypeface(glyphTypeface, key.Style, key.Weight, key.Stretch, out var syntheticGlyphTypeface))
                         {
                             glyphTypeface = syntheticGlyphTypeface;
+                        }
+                        else if (!AllowNearestWeightMatch && matchedKey.Weight != key.Weight)
+                        {
+                            glyphTypeface = null;
+                            return false;
                         }
                         else
                         {
