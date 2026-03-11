@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.CareCompanionAppPage">
+  <DockPanel>
+    <ScrollViewer x:Name="InfoPanel" DockPanel.Dock="Right" Width="300">
+      <StackPanel Margin="16" Spacing="16">
+
+        <TextBlock Text="Onboarding Showcase" FontSize="16" FontWeight="SemiBold"
+                   Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
+
+        <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.7"
+                   Text="A healthcare onboarding flow with a PipsPager as the bottom page indicator. The PipsPager is overlaid on the Carousel via a shared Grid row, replacing the need for custom dot indicators." />
+
+        <Separator />
+
+        <TextBlock Text="How It Works" FontSize="13" FontWeight="SemiBold" />
+        <StackPanel Spacing="4">
+          <TextBlock FontSize="12" TextWrapping="Wrap" Text="1. Carousel hosts the onboarding pages" />
+          <TextBlock FontSize="12" TextWrapping="Wrap" Text="2. PipsPager sits below in a shared Grid" />
+          <TextBlock FontSize="12" TextWrapping="Wrap" Text="3. TwoWay binding syncs selection" />
+          <TextBlock FontSize="12" TextWrapping="Wrap" Text="4. Tap pips or tap buttons to navigate" />
+          <TextBlock FontSize="12" TextWrapping="Wrap" Text="5. Get Started completes the onboarding" />
+        </StackPanel>
+
+        <Separator />
+
+        <TextBlock Text="Design" FontSize="13" FontWeight="SemiBold" />
+        <StackPanel Spacing="4">
+          <TextBlock FontSize="12" Text="Primary: #137fec (healthcare blue)" />
+          <TextBlock FontSize="12" Text="Background: #f6f7f8 (off-white)" />
+          <TextBlock FontSize="12" Text="Cards: #ffffff with border" />
+          <TextBlock FontSize="12" Text="PipsPager: pill indicator, no nav buttons" />
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+            BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+      <Grid x:Name="RootContainer" RowDefinitions="*,Auto">
+
+        <Carousel x:Name="ShowcaseCarousel" Grid.Row="0">
+          <Carousel.PageTransition>
+            <CrossFade Duration="0:0:0.3" />
+          </Carousel.PageTransition>
+        </Carousel>
+
+        <PipsPager x:Name="ShowcasePager"
+                   Grid.Row="1"
+                   NumberOfPages="3"
+                   SelectedPageIndex="{Binding #ShowcaseCarousel.SelectedIndex, Mode=TwoWay}"
+                   IsPreviousButtonVisible="False"
+                   IsNextButtonVisible="False"
+                   HorizontalAlignment="Center"
+                   Margin="0,12,0,16">
+          <PipsPager.Styles>
+            <Style Selector="PipsPager /template/ ListBox ListBoxItem">
+              <Setter Property="Width" Value="24" />
+              <Setter Property="Height" Value="24" />
+              <Setter Property="Padding" Value="0" />
+              <Setter Property="Margin" Value="2,0" />
+              <Setter Property="MinWidth" Value="0" />
+              <Setter Property="MinHeight" Value="0" />
+              <Setter Property="ClipToBounds" Value="False" />
+              <Setter Property="VerticalAlignment" Value="Center" />
+              <Setter Property="Template">
+                <ControlTemplate>
+                  <Grid Background="Transparent">
+                    <Border Name="Pip"
+                            Width="6" Height="6" CornerRadius="3"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Background="#d1d5db" Opacity="0.6">
+                      <Border.Transitions>
+                        <Transitions>
+                          <DoubleTransition Property="Width" Duration="0:0:0.25" Easing="CubicEaseInOut" />
+                          <DoubleTransition Property="Height" Duration="0:0:0.25" Easing="CubicEaseInOut" />
+                          <DoubleTransition Property="Opacity" Duration="0:0:0.25" />
+                          <CornerRadiusTransition Property="CornerRadius" Duration="0:0:0.25" Easing="CubicEaseInOut" />
+                          <BrushTransition Property="Background" Duration="0:0:0.25" />
+                        </Transitions>
+                      </Border.Transitions>
+                    </Border>
+                  </Grid>
+                </ControlTemplate>
+              </Setter>
+            </Style>
+            <Style Selector="PipsPager /template/ ListBox ListBoxItem:pointerover /template/ Border#Pip">
+              <Setter Property="Width" Value="8" />
+              <Setter Property="Height" Value="8" />
+              <Setter Property="CornerRadius" Value="4" />
+              <Setter Property="Opacity" Value="0.8" />
+              <Setter Property="Background" Value="#94a3b8" />
+            </Style>
+            <Style Selector="PipsPager /template/ ListBox ListBoxItem:selected /template/ Border#Pip">
+              <Setter Property="Width" Value="20" />
+              <Setter Property="Height" Value="6" />
+              <Setter Property="CornerRadius" Value="3" />
+              <Setter Property="Opacity" Value="1" />
+              <Setter Property="Background" Value="#137fec" />
+            </Style>
+            <Style Selector="PipsPager /template/ ListBox ListBoxItem:selected:pointerover /template/ Border#Pip">
+              <Setter Property="Width" Value="22" />
+              <Setter Property="Height" Value="6" />
+              <Setter Property="CornerRadius" Value="3" />
+              <Setter Property="Opacity" Value="1" />
+              <Setter Property="Background" Value="#0a5bb5" />
+            </Style>
+            <Style Selector="PipsPager /template/ ListBox ListBoxItem:pressed /template/ Border#Pip">
+              <Setter Property="Width" Value="5" />
+              <Setter Property="Height" Value="5" />
+              <Setter Property="CornerRadius" Value="2.5" />
+              <Setter Property="Opacity" Value="0.5" />
+              <Setter Property="Background" Value="#94a3b8" />
+            </Style>
+          </PipsPager.Styles>
+        </PipsPager>
+
+      </Grid>
+    </Border>
+  </DockPanel>
+</UserControl>
