@@ -33,6 +33,102 @@ enum TrustLevel
     FullTrust
 }
 
+enum NotificationSetting
+{
+    Enabled = 0,
+    DisabledForApplication = 1,
+    DisabledForUser = 2,
+    DisabledByGroupPolicy = 3,
+    DisabledByManifest = 4
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.Data.Xml.Dom.XmlDocument)]
+[uuid(F7F3A506-1E87-42D6-BCFB-B8C809FA5494)]
+interface IXmlDocument : IInspectable
+{
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.Data.Xml.Dom.XmlDocument)]
+[uuid(6CD0E74E-EE65-4489-9EBF-CA43E87BA637)]
+interface IXmlDocumentIO : IInspectable
+{
+    [overload("LoadXml")] HRESULT LoadXml([in] HSTRING xml);
+}
+
+[uuid(997E2675-059E-4E60-8B06-1760917C8B80)]
+interface IToastNotification : IInspectable
+{
+    [propget] HRESULT Content([out][retval] IXmlDocument** value);
+    [propput] HRESULT ExpirationTime([in] void* value);
+    [propget] HRESULT ExpirationTime([out][retval] void** value);
+    [eventadd] HRESULT AddDismissed([in] void* handler, [out][retval] int* token);
+    [eventremove] HRESULT RemoveDismissed([in] int token);
+    [eventadd] HRESULT AddActivated([in] void* handler, [out][retval] int* token);
+    [eventremove] HRESULT RemoveActivated([in] int token);
+    [eventadd] HRESULT AddFailed([in] void* handler, [out][retval] int* token);
+    [eventremove] HRESULT RemoveFailed([in] int token);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotification)]
+[uuid(9DFB9FD1-143A-490E-90BF-B9FBA7132DE7)]
+interface IToastNotification2 : IInspectable
+{
+    [propput] HRESULT Tag([in] HSTRING value);
+    [propget] HRESULT Tag([out][retval] HSTRING* value);
+    [propput] HRESULT Group([in] HSTRING value);
+    [propget] HRESULT Group([out][retval] HSTRING* value);
+    [propput] HRESULT SuppressPopup([in] boolean value);
+    [propget] HRESULT SuppressPopup([out][retval] boolean* value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotification)]
+[uuid(04124B20-82C6-4229-B109-FD9ED4662B53)]
+interface IToastNotificationFactory : IInspectable
+{
+    HRESULT CreateToastNotification([in] IXmlDocument* content, [out][retval] IToastNotification** value);
+}
+
+[uuid(75927B93-03F3-41EC-91D3-6E5BAC1B38E7)]
+interface IToastNotifier : IInspectable
+{
+    HRESULT Show([in] IToastNotification* notification);
+    HRESULT Hide([in] IToastNotification* notification);
+    [propget] HRESULT Setting([out][retval] NotificationSetting* value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotificationManager)]
+[uuid(50AC103F-D235-4598-BBEF-98FE4D1A3AD4)]
+interface IToastNotificationManagerStatics : IInspectable
+{
+    [overload("CreateToastNotifier")] HRESULT CreateToastNotifier([out][retval] IToastNotifier** result);
+    [overload("CreateToastNotifier")] HRESULT CreateToastNotifierWithId([in] HSTRING applicationId, [out][retval] IToastNotifier** result);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotificationHistory)]
+[uuid(5CADDC63-01D3-4C97-986F-0533483FEE14)]
+interface IToastNotificationHistory : IInspectable
+{
+    [overload("RemoveGroup")] HRESULT RemoveGroup([in] HSTRING group);
+    [overload("RemoveGroup")] HRESULT RemoveGroupWithId([in] HSTRING group, [in] HSTRING applicationId);
+    [overload("Remove")] HRESULT RemoveGroupedTagWithId([in] HSTRING tag, [in] HSTRING group, [in] HSTRING applicationId);
+    [overload("Remove")] HRESULT RemoveGroupedTag([in] HSTRING tag, [in] HSTRING group);
+    [overload("Clear")] HRESULT Clear();
+    [overload("Clear")] HRESULT ClearWithId([in] HSTRING applicationId);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 4.0)]
+[uuid(7AB93C52-0E48-4750-BA9D-1A4113981847)]
+interface IToastNotificationManagerStatics2 : IInspectable
+{
+    [propget] HRESULT History([out][retval] IToastNotificationHistory** value);
+}
+
 enum DirectXAlphaMode
 {
  Unspecified,

@@ -301,7 +301,7 @@ private:
     std::shared_ptr<ComObjectWeakRefToken> _token;
     TClass* _rawPtr;
 public:
-    ComPtr<TClass> tryGet()
+    ComPtr<TClass> tryGet() const
     {
         if(_rawPtr == nullptr)
             return nullptr;
@@ -310,7 +310,7 @@ public:
         return nullptr;
     }
     
-    template<class TCast> ComPtr<TCast> tryGetWithCast()
+    template<class TCast> ComPtr<TCast> tryGetWithCast() const
     {
         return tryGet().template dynamicCast<TCast>();
     }

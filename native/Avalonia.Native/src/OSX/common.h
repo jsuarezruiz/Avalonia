@@ -7,6 +7,12 @@
 #import <AppKit/AppKit.h>
 #include <pthread.h>
 #include "noarc.h"
+#include "NewInterfaceIds.h"
+
+// Avalonia.Native historically materialized the final six bytes of every IID
+// from d42. Existing managed/native pairs depend on those values, so changing
+// the global macro is an ABI break. New interfaces use explicit, correct IDs
+// while the established interfaces retain their historical identity.
 
 extern IAvnPlatformThreadingInterface* CreatePlatformThreading();
 extern void FreeAvnGCHandle(void* handle);
@@ -32,6 +38,7 @@ extern IAvnApplicationCommands* CreateApplicationCommands();
 extern IAvnPlatformBehaviorInhibition* CreatePlatformBehaviorInhibition();
 extern IAvnNativeControlHost* CreateNativeControlHost(NSView* parent);
 extern IAvnPlatformSettings* CreatePlatformSettings();
+extern IAvnSystemNotificationProvider* CreateSystemNotificationProvider();
 extern IAvnPlatformRenderTimer* CreatePlatformRenderTimer();
 extern IAvnNativeObjectsMemoryManagement* CreateMemoryManagementHelper();
 extern void SetAppMenu(IAvnMenu *menu);

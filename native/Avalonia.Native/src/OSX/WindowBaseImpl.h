@@ -10,6 +10,7 @@
 #include "INSWindowHolder.h"
 #include "AvnTextInputMethod.h"
 #include "TopLevelImpl.h"
+#include "NewInterfaceIds.h"
 #include <list>
 
 @class AvnMenu;
@@ -17,6 +18,7 @@
 
 class WindowBaseImpl : public virtual TopLevelImpl,
                        public virtual IAvnWindowBase,
+                       public virtual IAvnMessageDialogProvider,
                        public INSWindowHolder {
 
 public:
@@ -25,6 +27,7 @@ public:
     BEGIN_INTERFACE_MAP()
         INHERIT_INTERFACE_MAP(TopLevelImpl)
         INTERFACE_MAP_ENTRY(IAvnWindowBase, IID_IAvnWindowBase)
+        INTERFACE_MAP_ENTRY(IAvnMessageDialogProvider, IID_IAvnMessageDialogProvider_V2)
     END_INTERFACE_MAP()
 
     virtual ~WindowBaseImpl();
@@ -80,6 +83,19 @@ public:
     virtual bool CanZoom() { return false; }
                            
     virtual HRESULT SetParent(IAvnWindowBase* parent) override;
+
+    virtual HRESULT ShowMessageDialog(
+        const char* title,
+        const char* message,
+        const char* detail,
+        AvnMessageDialogIcon icon,
+        IAvnStringArray* actions,
+        int defaultActionIndex,
+        int cancelActionIndex,
+        int destructiveActionMask,
+        IAvnMessageDialogEvents* events) override;
+
+    virtual HRESULT CancelMessageDialog() override;
                            
 protected:
     virtual NSWindowStyleMask CalculateStyleMask() = 0;
@@ -96,6 +112,7 @@ private:
     NSSize lastMaxSize;
     AvnMenu* lastMenu;
     bool _inResize;
+    NSAlert* __strong _messageDialog;
 
 protected:
     AutoFitContentView *StandardContainer;

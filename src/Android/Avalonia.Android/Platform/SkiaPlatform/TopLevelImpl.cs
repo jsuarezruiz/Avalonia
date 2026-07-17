@@ -39,6 +39,7 @@ namespace Avalonia.Android.Platform.SkiaPlatform
         private readonly Clipboard _clipboard;
         private readonly AndroidLauncher? _launcher;
         private readonly AndroidScreens? _screens;
+        private readonly INativeMessageDialogProvider? _messageDialogProvider;
         private SurfaceViewImpl? _view;
         private WindowTransparencyLevel _transparencyLevel;
 
@@ -58,11 +59,12 @@ namespace Avalonia.Android.Platform.SkiaPlatform
                 context));
             _screens = new AndroidScreens(context);
 
-            if (context is Activity mainActivity)
+            if (FindActivity(context) is { } mainActivity)
             {
                 _insetsManager = new AndroidInsetsManager(mainActivity, this);
                 _storageProvider = new AndroidStorageProvider(mainActivity);
                 _launcher = new AndroidLauncher(mainActivity);
+                _messageDialogProvider = new AndroidMessageDialogProvider(mainActivity);
             }
 
             _nativeControlHost = new AndroidNativeControlHostImpl(avaloniaView);
@@ -74,6 +76,21 @@ namespace Avalonia.Android.Platform.SkiaPlatform
             var framebuffer = new FramebufferManager(this);
             Surfaces = [gl, framebuffer, _view];
             Handle = new AndroidViewControlHandle(_view);
+        }
+
+        private static Activity? FindActivity(Context context)
+        {
+            while (context is ContextWrapper wrapper &&
+                   wrapper.BaseContext is { } baseContext &&
+                   !object.ReferenceEquals(context, baseContext))
+            {
+                if (context is Activity activity)
+                    return activity;
+
+                context = baseContext;
+            }
+
+            return context as Activity;
         }
 
         public IInputRoot? InputRoot { get; private set; }
@@ -354,6 +371,11 @@ namespace Avalonia.Android.Platform.SkiaPlatform
             if (featureType == typeof(IScreenImpl))
             {
                 return _screens;
+            }
+
+            if (featureType == typeof(INativeMessageDialogProvider))
+            {
+                return _messageDialogProvider;
             }
 
             return null;

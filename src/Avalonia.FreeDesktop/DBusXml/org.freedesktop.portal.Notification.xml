@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<node name="/">
+  <interface name="org.freedesktop.portal.Notification">
+    <method name="AddNotification">
+      <arg type="s" name="id" direction="in"/>
+      <arg type="a{sv}" name="notification" direction="in"/>
+    </method>
+    <method name="RemoveNotification">
+      <arg type="s" name="id" direction="in"/>
+    </method>
+    <property name="version" type="u" access="read"/>
+  </interface>
+</node>

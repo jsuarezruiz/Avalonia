@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -8,6 +9,8 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Window;
+using AndroidX.Activity.Result;
+using AndroidX.Activity.Result.Contract;
 using AndroidX.AppCompat.App;
 using Avalonia.Android.Platform;
 using Avalonia.Android.Platform.Storage;
@@ -29,6 +32,9 @@ public class AvaloniaActivity : AppCompatActivity, IAvaloniaActivity
     internal AvaloniaView? _view;
     private BackPressedCallback? _currentBackPressedCallback;
     private bool _shouldNavigateBack;
+    private ActivityResultLauncher? _notificationPermissionLauncher;
+    private ActivityResultContracts.RequestPermission? _notificationPermissionContract;
+    private NotificationPermissionResultCallback? _notificationPermissionCallback;
 
     public Action<int, Result, Intent?>? ActivityResult { get; set; }
     public Action<int, string[], Permission[]>? RequestPermissionsResult { get; set; }
@@ -112,6 +118,7 @@ public class AvaloniaActivity : AppCompatActivity, IAvaloniaActivity
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
+        RegisterNotificationPermissionRequest();
         InitializeAvaloniaView(_content);
 
         base.OnCreate(savedInstanceState);
@@ -123,6 +130,19 @@ public class AvaloniaActivity : AppCompatActivity, IAvaloniaActivity
         }
 
         HandleIntent(Intent);
+    }
+
+    internal Task<bool> RequestNotificationPermissionAsync(string permission)
+    {
+        if (_notificationPermissionLauncher is null)
+        {
+            throw new InvalidOperationException(
+                "The Android notification-permission launcher has not been registered.");
+        }
+
+        return AndroidNotificationPermissionRequest.Launch(
+            _notificationPermissionLauncher,
+            permission);
     }
 
     protected override void OnNewIntent(Intent? intent)
@@ -233,6 +253,17 @@ public class AvaloniaActivity : AppCompatActivity, IAvaloniaActivity
         }
     }
 
+    private void RegisterNotificationPermissionRequest()
+    {
+        _notificationPermissionContract = new ActivityResultContracts.RequestPermission();
+        _notificationPermissionCallback = new NotificationPermissionResultCallback();
+        _notificationPermissionLauncher = ActivityResultRegistry.Register(
+            "avalonia.system-notification-permission",
+            this,
+            _notificationPermissionContract,
+            _notificationPermissionCallback);
+    }
+
     public void OnBackInvoked()
     {
         var eventArgs = new AndroidBackRequestedEventArgs();
@@ -254,6 +285,17 @@ public class AvaloniaActivity : AppCompatActivity, IAvaloniaActivity
         public void OnGlobalLayout()
         {
             _view.TopLevelImpl?.Resize(_view.TopLevelImpl.ClientSize);
+        }
+    }
+
+    private sealed class NotificationPermissionResultCallback :
+        Java.Lang.Object,
+        IActivityResultCallback
+    {
+        public void OnActivityResult(Java.Lang.Object? result)
+        {
+            AndroidNotificationPermissionRequest.Complete(
+                result is Java.Lang.Boolean value && value.BooleanValue());
         }
     }
 }

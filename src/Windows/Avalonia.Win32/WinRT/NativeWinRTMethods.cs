@@ -29,9 +29,9 @@ namespace Avalonia.Win32.WinRT
             IntPtr activatableClassId);
 
         internal static IActivationFactory GetWindowsUICompositionActivationFactory(string className)
-        {//"Windows.UI.Composition.Compositor"
-            var s = WindowsCreateString(className);
-            var factory = GetWindowsUICompositionActivationFactory(s);
+        {
+            using var s = new HStringInterop(className);
+            var factory = GetWindowsUICompositionActivationFactory(s.Handle);
             return MicroComRuntime.CreateProxyFor<IActivationFactory>(factory, true);
         }
 
@@ -40,22 +40,20 @@ namespace Avalonia.Win32.WinRT
         
         internal static T CreateInstance<T>(string fullName) where T : IUnknown
         {
-            var s = WindowsCreateString(fullName);
+            using var s = new HStringInterop(fullName);
             EnsureRoInitialized();
-            var pUnk = RoActivateInstance(s);
+            var pUnk = RoActivateInstance(s.Handle);
             using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
-            WindowsDeleteString(s);
             return MicroComRuntime.QueryInterface<T>(unk);
         }
         
         internal static TFactory CreateActivationFactory<TFactory>(string fullName) where TFactory : IUnknown
         {
-            var s = WindowsCreateString(fullName);
+            using var s = new HStringInterop(fullName);
             EnsureRoInitialized();
             var guid = MicroComRuntime.GetGuidFor(typeof(TFactory));
-            var pUnk = RoGetActivationFactory(s, ref guid);
+            var pUnk = RoGetActivationFactory(s.Handle, ref guid);
             using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
-            WindowsDeleteString(s);
             return MicroComRuntime.QueryInterface<TFactory>(unk);
         }
         
@@ -102,6 +100,7 @@ namespace Avalonia.Win32.WinRT
         [DllImport("combase.dll", PreserveSig = false)]
         private static extern IntPtr RoGetActivationFactory(IntPtr activatableClassId, ref Guid iid);
         
+        [ThreadStatic]
         private static bool s_initialized;
         private static void EnsureRoInitialized()
         {

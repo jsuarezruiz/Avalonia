@@ -5,6 +5,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Threading;
 using Avalonia.Browser.Interop;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Platform;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -97,6 +98,8 @@ internal class BrowserWindowingPlatform : IWindowingPlatform
             .Bind<PlatformHotkeyConfiguration>().ToSingleton<PlatformHotkeyConfiguration>()
             .Bind<KeyGestureFormatInfo>().ToConstant(new KeyGestureFormatInfo(new Dictionary<Key, string>() { }))
             .Bind<IActivatableLifetime>().ToSingleton<BrowserActivatableLifetime>();
+        AvaloniaLocator.CurrentMutable
+            .Bind<ISystemNotificationManager>().ToSingleton<BrowserSystemNotificationManager>();
         
         if (IsManagedDispatcherEnabled)
         {

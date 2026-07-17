@@ -7,6 +7,7 @@ using Avalonia.Reactive;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Platform;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -40,7 +41,7 @@ namespace Avalonia.Win32
 {
     internal class Win32Platform : IWindowingPlatform, IPlatformIconLoader, IPlatformLifetimeEventsImpl
     {
-        private static readonly Win32Platform s_instance = new();
+        private static Win32Platform? s_instance;
         private static Win32PlatformOptions? s_options;
         private static Compositor? s_compositor;
         internal const int TIMERID_DISPATCHER = 1;
@@ -55,7 +56,8 @@ namespace Avalonia.Win32
             _dispatcher = new Win32DispatcherImpl(_hwnd);
         }
 
-        internal static Win32Platform Instance => s_instance;
+        internal static Win32Platform Instance
+            => s_instance ?? throw new InvalidOperationException($"{nameof(Win32Platform)} hasn't been initialized");
         internal IPlatformSettings PlatformSettings => AvaloniaLocator.Current.GetRequiredService<IPlatformSettings>();
         internal ScreenImpl Screen => (ScreenImpl)AvaloniaLocator.Current.GetRequiredService<IScreenImpl>();
 
@@ -83,9 +85,16 @@ namespace Avalonia.Win32
         {
             s_options = options;
 
+            // A process AppUserModelID must be established before any HWND is created.
+            // Notification registration itself remains lazy because it can touch the
+            // file system and registry and is only needed by applications that use it.
+            Win32SystemNotificationManager.InitializeProcessIdentity(options);
+
             SetDpiAwareness();
 
-            Dispatcher.InitializeUIThreadDispatcher(s_instance._dispatcher);
+            var instance = s_instance ??= new Win32Platform();
+
+            Dispatcher.InitializeUIThreadDispatcher(instance._dispatcher);
             
             var renderTimer = options.ShouldRenderOnUIThread ? new UiThreadRenderTimer(60) : new DefaultRenderTimer(60);
             var clipboardImpl = new ClipboardImpl();
@@ -99,7 +108,7 @@ namespace Avalonia.Win32
                 .Bind<IPlatformSettings>().ToSingleton<Win32PlatformSettings>()
                 .Bind<IScreenImpl>().ToSingleton<ScreenImpl>()
                 .Bind<IRenderLoop>().ToConstant(RenderLoop.FromTimer(renderTimer))
-                .Bind<IWindowingPlatform>().ToConstant(s_instance)
+                .Bind<IWindowingPlatform>().ToConstant(instance)
                 .Bind<PlatformHotkeyConfiguration>().ToConstant(new PlatformHotkeyConfiguration(KeyModifiers.Control)
                 {
                     OpenContextMenu =
@@ -109,10 +118,12 @@ namespace Avalonia.Win32
                     }
                 })
                 .Bind<KeyGestureFormatInfo>().ToConstant(new KeyGestureFormatInfo(new Dictionary<Key, string>() { }, meta: "Win"))
-                .Bind<IPlatformIconLoader>().ToConstant(s_instance)
+                .Bind<IPlatformIconLoader>().ToConstant(instance)
                 .Bind<NonPumpingLockHelper.IHelperImpl>().ToConstant(NonPumpingWaitHelperImpl.Instance)
                 .Bind<IMountedVolumeInfoProvider>().ToConstant(new WindowsMountedVolumeInfoProvider())
-                .Bind<IPlatformLifetimeEventsImpl>().ToConstant(s_instance);
+                .Bind<IPlatformLifetimeEventsImpl>().ToConstant(instance);
+            AvaloniaLocator.CurrentMutable
+                .Bind<ISystemNotificationManager>().ToSingleton<Win32SystemNotificationManager>();
 
             IPlatformGraphics? platformGraphics;
             if (options.CustomPlatformGraphics is not null)

@@ -12,6 +12,8 @@ import { WebRenderTarget } from "./avalonia/rendering/webRenderTarget";
 import { SoftwareRenderTarget } from "./avalonia/rendering/softwareRenderTarget";
 import { WebGlRenderTarget } from "./avalonia/rendering/webGlRenderTarget";
 import { ScreenHelper } from "./avalonia/screens";
+import { MessageDialog } from "./avalonia/messageDialog";
+import { SystemNotificationBridge } from "./avalonia/systemNotification";
 
 async function registerServiceWorker(path: string, scope: string | undefined) {
     if ("serviceWorker" in navigator) {
@@ -34,5 +36,7 @@ export {
     WebRenderTargetRegistry,
     SoftwareRenderTarget,
     WebGlRenderTarget,
+    MessageDialog,
+    SystemNotificationBridge,
     registerServiceWorker
 };

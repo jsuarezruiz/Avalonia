@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Platform;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -16,9 +17,11 @@ namespace Avalonia.Native
 {
     class AvaloniaNativePlatform : IWindowingPlatform
     {
+        private const int NoInterface = unchecked((int)0x80004002);
         private readonly IAvaloniaNativeFactory _factory;
         private AvaloniaNativePlatformOptions? _options;
         private IPlatformGraphics? _platformGraphics;
+        private AvaloniaNativeSystemNotificationManager? _systemNotifications;
 
         [DllImport("libAvaloniaNative")]
         static extern IntPtr CreateAvaloniaNative();
@@ -129,6 +132,20 @@ namespace Avalonia.Native
                 .Bind<INativeApplicationCommands>().ToConstant(new MacOSNativeMenuCommands(_factory.CreateApplicationCommands()))
                 .Bind<IActivatableLifetime>().ToSingleton<MacOSActivatableLifetime>()
                 .Bind<IStorageProviderFactory>().ToConstant(new StorageProviderApi(_factory.CreateStorageProvider(), options.AppSandboxEnabled));
+            try
+            {
+                using var notificationFactory =
+                    _factory.QueryInterface<IAvnSystemNotificationProviderFactory>();
+                _systemNotifications = new AvaloniaNativeSystemNotificationManager(
+                    notificationFactory.CreateSystemNotificationProvider());
+                AvaloniaLocator.CurrentMutable
+                    .Bind<ISystemNotificationManager>().ToConstant(_systemNotifications);
+            }
+            catch (COMException exception) when (exception.HResult == NoInterface)
+            {
+                // The application-level service will expose its unsupported provider
+                // when paired with an older Avalonia.Native binary.
+            }
 
             var hotkeys = new PlatformHotkeyConfiguration(KeyModifiers.Meta, wholeWordTextActionModifiers: KeyModifiers.Alt);
             hotkeys.MoveCursorToTheStartOfLine.Add(new KeyGesture(Key.Left, hotkeys.CommandModifiers));
@@ -192,6 +209,8 @@ namespace Avalonia.Native
         private void OnProcessExit(object? sender, EventArgs e)
         {
             AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
+            _systemNotifications?.Dispose();
+            _systemNotifications = null;
             _factory.Dispose();
         }
 

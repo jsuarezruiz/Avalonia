@@ -23,7 +23,7 @@ internal static unsafe class Glib
         IntPtr handler, IntPtr userData, int flags);
 
     [DllImport(GObjectName)]
-    private static extern void g_object_unref(IntPtr instance);
+    public static extern void g_object_unref(IntPtr instance);
 
     [DllImport(GObjectName)]
     private static extern ulong g_signal_handler_disconnect(IntPtr instance, ulong connectionId);

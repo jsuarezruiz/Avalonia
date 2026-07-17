@@ -24,6 +24,9 @@ namespace Avalonia.Automation.Peers
         protected override IReadOnlyList<AutomationPeer>? GetChildrenCore()
         {
             var baseChildren = base.GetChildrenCore();
+            if (ManagedModalCoordinator.GetActiveModal(Owner) is not null)
+                return baseChildren;
+
             var overlayPeer = Owner.TopLevelHost.GetOrCreateDecorationsOverlaysPeer();
             
             var rv = new List<AutomationPeer> { overlayPeer };
@@ -45,5 +48,4 @@ namespace Avalonia.Automation.Peers
         }
     }
 }
-
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.iOS;
@@ -95,6 +96,10 @@ namespace Avalonia.iOS
                     }, ctrl: "⌃", meta: "⌘", shift: "⇧", alt: "⌥"))
                 .Bind<IRenderLoop>().ToConstant(RenderLoop.FromTimer(Timer))
                 .Bind<IKeyboardDevice>().ToConstant(keyboard);
+            AvaloniaLocator.CurrentMutable
+                // Construct eagerly so the foreground notification delegate is assigned
+                // before FinishedLaunching returns, as required by UserNotifications.
+                .Bind<ISystemNotificationManager>().ToConstant(new IOSSystemNotificationManager());
 
             if (appDelegate is not null)
             {
@@ -137,4 +142,3 @@ namespace Avalonia.iOS
         }
     }
 }
-

@@ -40,6 +40,7 @@ namespace Avalonia.iOS
         private IInputRoot? _inputRoot;
         private Metal.MetalRenderTarget? _currentRenderTarget;
         private (PixelSize size, double scaling) _latestLayoutProps;
+        private bool _disposed;
 
         public AvaloniaView()
         {
@@ -161,6 +162,7 @@ namespace Avalonia.iOS
             private readonly IStorageProvider? _storageProvider;
             private readonly IClipboard? _clipboard;
             private readonly IInputPane? _inputPane;
+            private readonly INativeMessageDialogProvider _messageDialogProvider;
             private IDisposable? _paddingInsets;
 
             public AvaloniaView View => _view;
@@ -171,6 +173,8 @@ namespace Avalonia.iOS
                 Handle = new UIViewControlHandle(_view);
 
                 _nativeControlHost = new NativeControlHostImpl(view);
+                _messageDialogProvider = new IOSMessageDialogProvider(
+                    () => view._controller as UIViewController);
 #if TVOS
                 _storageProvider = null;
                 _clipboard = null;
@@ -315,6 +319,11 @@ namespace Avalonia.iOS
                     return (iOSScreens)AvaloniaLocator.Current.GetRequiredService<IScreenImpl>();
                 }
 
+                if (featureType == typeof(INativeMessageDialogProvider))
+                {
+                    return _messageDialogProvider;
+                }
+
                 return null;
             }
         }
@@ -411,6 +420,17 @@ namespace Avalonia.iOS
         {
             _currentRenderTarget = target;
             _currentRenderTarget.PendingLayout = _latestLayoutProps;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                _disposed = true;
+                _topLevel.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

@@ -368,6 +368,11 @@ namespace Avalonia.Win32
                 return new BclLauncher();
             }
 
+            if (featureType == typeof(INativeMessageDialogProvider))
+            {
+                return new Win32MessageDialogProvider(_hwnd);
+            }
+
             return null;
         }
 
@@ -1731,4 +1736,3 @@ namespace Avalonia.Win32
         }
     }
 }
-

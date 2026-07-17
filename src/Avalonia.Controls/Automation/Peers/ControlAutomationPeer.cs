@@ -79,6 +79,14 @@ namespace Avalonia.Automation.Peers
 
         protected virtual IReadOnlyList<AutomationPeer>? GetChildrenCore()
         {
+            if (Owner is TopLevel topLevel &&
+                ManagedModalCoordinator.GetActiveModal(topLevel) is { } modal)
+            {
+                return topLevel.IsVisualAncestorOf(modal) && modal.IsVisible
+                    ? new[] { GetOrCreate(modal) }
+                    : Array.Empty<AutomationPeer>();
+            }
+
             var children = Owner.VisualChildren;
 
             if (children.Count == 0)
@@ -163,6 +171,8 @@ namespace Avalonia.Automation.Peers
             _childrenValid = false;
             RaiseChildrenChangedEvent();
         }
+
+        internal void InvalidateChildrenForModal() => InvalidateChildren();
 
         /// <summary>
         /// Invalidates the peer's parent.
@@ -335,4 +345,3 @@ namespace Avalonia.Automation.Peers
         }
     }
 }
-

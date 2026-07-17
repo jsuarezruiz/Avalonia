@@ -52,5 +52,16 @@ struct IUnknown
 #define COMINTERFACE(name,d1,d2,d3, d41, d42, d43, d44, d45, d46, d47, d48) __IID_DEF(name,d1,d2,d3, d41, d42, d43, d44, d45, d46, d47, d48) \
 struct __attribute__((annotate("uuid(" #d1 "-" #d2 "-" #d3 "-" #d41 #d42 "-" #d43 #d44 #d45 #d46 #d47 #d48 ")" ))) name
 
+// Keep __IID_DEF unchanged: existing Avalonia.Native interfaces depend on its
+// historical byte layout. New interfaces use this versioned materializer.
+#ifdef COM_GUIDS_MATERIALIZE
+#define AVN_IID_V2(symbol,d1,d2,d3, d41,d42,d43,d44,d45,d46,d47,d48) \
+extern "C" const GUID symbol = {0x ## d1, 0x ## d2, 0x ## d3, \
+{0x ## d41, 0x ## d42, 0x ## d43, 0x ## d44, 0x ## d45, 0x ## d46, 0x ## d47, 0x ## d48 } };
+#else
+#define AVN_IID_V2(symbol,d1,d2,d3, d41,d42,d43,d44,d45,d46,d47,d48) \
+extern "C" const GUID symbol;
+#endif
+
 #endif // COM_H_INCLUDED
 #pragma clang diagnostic pop

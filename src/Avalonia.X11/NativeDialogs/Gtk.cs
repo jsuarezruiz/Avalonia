@@ -17,6 +17,27 @@ namespace Avalonia.X11.NativeDialogs
         SelectFolder,
     }
 
+    [Flags]
+    internal enum GtkDialogFlags
+    {
+        Modal = 1,
+        DestroyWithParent = 2
+    }
+
+    internal enum GtkMessageType
+    {
+        Info,
+        Warning,
+        Question,
+        Error,
+        Other
+    }
+
+    internal enum GtkButtonsType
+    {
+        None
+    }
+
     // ReSharper disable UnusedMember.Global
     internal enum GtkResponseType
     {
@@ -39,6 +60,9 @@ namespace Avalonia.X11.NativeDialogs
         private static IntPtr s_display;
         private const string GdkName = "libgdk-3.so.0";
         private const string GtkName = "libgtk-3.so.0";
+        private static readonly Lazy<bool> s_isAvailable = new(CanLoadGtk);
+
+        public static bool IsAvailable => s_isAvailable.Value;
 
         [DllImport(GtkName)]
         private static extern void gtk_main_iteration();
@@ -50,10 +74,33 @@ namespace Avalonia.X11.NativeDialogs
         [DllImport(GtkName)]
         public static extern void gtk_window_present(IntPtr gtkWindow);
 
+        [DllImport(GtkName)]
+        public static extern void gtk_window_set_title(IntPtr window, Utf8Buffer title);
 
-        public delegate bool signal_generic(IntPtr gtkWidget, IntPtr userData);
+        [DllImport(GtkName)]
+        public static extern IntPtr gtk_message_dialog_new(
+            IntPtr parent,
+            GtkDialogFlags flags,
+            GtkMessageType type,
+            GtkButtonsType buttons,
+            Utf8Buffer format,
+            Utf8Buffer message);
 
-        public delegate bool signal_dialog_response(IntPtr gtkWidget, GtkResponseType response, IntPtr userData);
+        [DllImport(GtkName)]
+        public static extern void gtk_message_dialog_format_secondary_text(
+            IntPtr messageDialog,
+            Utf8Buffer format,
+            Utf8Buffer message);
+
+        [DllImport(GtkName)]
+        public static extern void gtk_dialog_set_default_response(IntPtr dialog, int responseId);
+
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void signal_generic(IntPtr gtkWidget, IntPtr userData);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void signal_dialog_response(IntPtr gtkWidget, GtkResponseType response, IntPtr userData);
 
         [DllImport(GtkName)]
         public static extern IntPtr gtk_file_chooser_dialog_new(Utf8Buffer title, IntPtr parent,
@@ -71,6 +118,10 @@ namespace Avalonia.X11.NativeDialogs
         [DllImport(GtkName)]
         public static extern void
             gtk_dialog_add_button(IntPtr raw, Utf8Buffer button_text, GtkResponseType response_id);
+
+        [DllImport(GtkName, EntryPoint = "gtk_dialog_add_button")]
+        public static extern void
+            gtk_dialog_add_button_with_id(IntPtr raw, Utf8Buffer buttonText, int responseId);
 
         [DllImport(GtkName)]
         public static extern GSList* gtk_file_chooser_get_filenames(IntPtr chooser);
@@ -146,6 +197,25 @@ namespace Avalonia.X11.NativeDialogs
 
         public static IntPtr GetForeignWindow(IntPtr xid) => gdk_x11_window_foreign_new_for_display(s_display, xid);
 
+        private static bool CanLoadGtk()
+        {
+            if (!NativeLibrary.TryLoad(GtkName, out var gtk))
+                return false;
+
+            try
+            {
+                if (!NativeLibrary.TryLoad(GdkName, out var gdk))
+                    return false;
+
+                NativeLibrary.Free(gdk);
+                return true;
+            }
+            finally
+            {
+                NativeLibrary.Free(gtk);
+            }
+        }
+
         static object s_startGtkLock = new();
         static Task<bool>? s_startGtkTask;
 
@@ -153,6 +223,21 @@ namespace Avalonia.X11.NativeDialogs
         {
             lock (s_startGtkLock)
                 return s_startGtkTask ??= StartGtkCore();
+        }
+
+        public static bool TryStartGtk()
+        {
+            if (!IsAvailable)
+                return false;
+
+            try
+            {
+                return StartGtk().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         static bool InitializeGtk()

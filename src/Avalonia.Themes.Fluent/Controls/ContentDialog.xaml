@@ -1,0 +1,135 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <CrossFade x:Key="ContentDialogDefaultTransition" Duration="0:0:0.16" />
+  <ControlTheme x:Key="{x:Type ContentDialog}" TargetType="ContentDialog">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Background" Value="{DynamicResource FlyoutPresenterBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource FlyoutBorderThemeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+    <Setter Property="Padding" Value="24" />
+    <Setter Property="Transition" Value="{DynamicResource ContentDialogDefaultTransition}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Background="Transparent">
+          <Border x:Name="PART_Backdrop"
+                  Background="#66000000" />
+
+          <Border x:Name="PART_DialogSurface"
+                  Margin="24"
+                  Padding="{TemplateBinding Padding}"
+                  MaxWidth="548"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  BoxShadow="0 8 24 0 #66000000"
+                  TextElement.Foreground="{TemplateBinding Foreground}">
+            <Grid RowDefinitions="Auto,*,Auto">
+              <ContentPresenter x:Name="PART_TitlePresenter"
+                                Margin="0,0,0,12"
+                                Content="{TemplateBinding Title}"
+                                ContentTemplate="{TemplateBinding TitleTemplate}"
+                                FontSize="20"
+                                FontWeight="SemiBold"
+                                IsVisible="{TemplateBinding Title, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                HorizontalContentAlignment="Stretch" />
+
+              <ScrollViewer x:Name="PART_ContentScrollViewer"
+                            Grid.Row="1"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                <ContentPresenter x:Name="PART_ContentPresenter"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+              </ScrollViewer>
+
+              <WrapPanel x:Name="PART_ActionPanel"
+                         Grid.Row="2"
+                         Margin="0,24,0,0"
+                         HorizontalAlignment="Stretch"
+                         ItemsAlignment="End"
+                         ItemSpacing="8"
+                         LineSpacing="8">
+                <Button x:Name="PART_CloseButton"
+                        MinWidth="96"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        IsVisible="False"
+                        IsEnabled="{TemplateBinding IsCloseButtonEnabled}"
+                        Command="{TemplateBinding CloseButtonCommand}"
+                        CommandParameter="{TemplateBinding CloseButtonCommandParameter}"
+                        Content="{TemplateBinding CloseButtonContent}" />
+                <Button x:Name="PART_SecondaryButton"
+                        MinWidth="96"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        IsVisible="False"
+                        IsEnabled="{TemplateBinding IsSecondaryButtonEnabled}"
+                        Command="{TemplateBinding SecondaryButtonCommand}"
+                        CommandParameter="{TemplateBinding SecondaryButtonCommandParameter}"
+                        Content="{TemplateBinding SecondaryButtonContent}" />
+                <Button x:Name="PART_PrimaryButton"
+                        MinWidth="96"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        IsVisible="False"
+                        IsEnabled="{TemplateBinding IsPrimaryButtonEnabled}"
+                        Command="{TemplateBinding PrimaryButtonCommand}"
+                        CommandParameter="{TemplateBinding PrimaryButtonCommandParameter}"
+                        Content="{TemplateBinding PrimaryButtonContent}" />
+              </WrapPanel>
+            </Grid>
+          </Border>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:primary /template/ Button#PART_PrimaryButton">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="^:secondary /template/ Button#PART_SecondaryButton">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="^:close /template/ Button#PART_CloseButton">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="^.primary-destructive /template/ Button#PART_PrimaryButton,
+                     ^.secondary-destructive /template/ Button#PART_SecondaryButton,
+                     ^.close-destructive /template/ Button#PART_CloseButton">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlErrorTextForegroundBrush}" />
+    </Style>
+    <Style Selector="^.chromeless /template/ Border#PART_DialogSurface">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BoxShadow" Value="none" />
+    </Style>
+    <Style Selector="^.bottom-sheet /template/ Border#PART_DialogSurface">
+      <Setter Property="Margin" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="MaxWidth" Value="640" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="BoxShadow" Value="none" />
+    </Style>
+    <Style Selector="^.bottom-sheet">
+      <Setter Property="Transition" Value="{DynamicResource BottomSheetDefaultTransition}" />
+    </Style>
+    <Style Selector="^.bottom-sheet /template/ ContentPresenter#PART_TitlePresenter">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^.bottom-sheet /template/ WrapPanel#PART_ActionPanel">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

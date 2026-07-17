@@ -1073,6 +1073,11 @@ namespace Avalonia.X11
                 return new BclLauncher();
             }
 
+            if (featureType == typeof(INativeMessageDialogProvider))
+            {
+                return Gtk.IsAvailable ? new GtkMessageDialogProvider(this) : null;
+            }
+
             if (featureType == typeof(IX11OptionsToplevelImplFeature))
             {
                 return this;

@@ -68,8 +68,23 @@ namespace Avalonia.Controls.Embedding
 
         public void Dispose()
         {
-            PlatformImpl?.Dispose();
-            LayoutManager?.Dispose();
+            var platformImpl = PlatformImpl;
+            if (platformImpl is null)
+                return;
+
+            platformImpl.Dispose();
+
+            // Window implementations normally raise ITopLevelImpl.Closed while they are
+            // disposed. Embedded implementations aren't required to own a native window,
+            // so make sure they still run the normal TopLevel teardown path.
+            if (ReferenceEquals(PlatformImpl, platformImpl))
+            {
+                // The platform no longer owns this root. Clear the callback before doing
+                // managed teardown so an implementation that reports closure later cannot
+                // run TopLevel.HandleClosed a second time.
+                platformImpl.Closed = null;
+                HandleClosed();
+            }
         }
     }
 }

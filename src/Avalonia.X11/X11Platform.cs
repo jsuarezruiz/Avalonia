@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Controls.Platform;
+using Avalonia.Controls.Notifications;
 using Avalonia.FreeDesktop;
 using Avalonia.FreeDesktop.AtSpi;
 using Avalonia.FreeDesktop.DBusIme;
@@ -98,6 +99,8 @@ namespace Avalonia.X11
                 .Bind<IPlatformIconLoader>().ToConstant(new X11IconLoader())
                 .Bind<IMountedVolumeInfoProvider>().ToConstant(new LinuxMountedVolumeInfoProvider())
                 .Bind<IPlatformLifetimeEventsImpl>().ToConstant(new X11PlatformLifetimeEvents(this));
+            AvaloniaLocator.CurrentMutable
+                .Bind<ISystemNotificationManager>().ToSingleton<PortalSystemNotificationManager>();
             
             Screens = X11Screens = new X11Screens(this);
             if (Info.XInputVersion != null)

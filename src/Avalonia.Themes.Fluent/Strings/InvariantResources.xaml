@@ -25,5 +25,7 @@
   <x:String x:Key="StringManagedFileChooserOverwritePromptFileAlreadyExistsText">{0} already exists. Do you want to replace it?</x:String>
   <x:String x:Key="StringManagedFileChooserOverwritePromptConfirmText">Yes</x:String>
   <x:String x:Key="StringManagedFileChooserOverwritePromptCancelText">No</x:String>
+  <!-- BottomSheet -->
+  <x:String x:Key="StringBottomSheetDragHandleName">Resize bottom sheet</x:String>
+  <x:String x:Key="StringBottomSheetDragHandleHelpText">Use Up and Down to move between detents, Home for the smallest detent, and End for the largest detent.</x:String>
 </ResourceDictionary>
-

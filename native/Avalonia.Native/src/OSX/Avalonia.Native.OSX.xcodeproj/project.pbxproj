@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0D000000000000000000001 /* SystemNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = C0D000000000000000000002 /* SystemNotifications.mm */; };
+		C0D000000000000000000003 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0D000000000000000000004 /* UserNotifications.framework */; };
 		18391068E48EF96E3DB5FDAB /* ResizeScope.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18391E45702740FE9DD69695 /* ResizeScope.mm */; };
 		1839125F057B0A4EB1760058 /* WindowImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 183919BF108EB72A029F7671 /* WindowImpl.mm */; };
 		183914E50CF6D2EFC1667F7C /* WindowInterfaces.h in Headers */ = {isa = PBXBuildFile; fileRef = 18391DB45C7D892E61BF388C /* WindowInterfaces.h */; };
@@ -69,6 +71,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C0D000000000000000000002 /* SystemNotifications.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SystemNotifications.mm; sourceTree = "<group>"; };
+		C0D000000000000000000004 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		1839122E037567BDD1D09DEB /* WindowProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowProtocol.h; sourceTree = "<group>"; };
 		1839132D0E2454D911F1D1F9 /* AvnView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AvnView.mm; sourceTree = "<group>"; };
 		183913C6BFD6856BD42D19FD /* IWindowStateChanged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IWindowStateChanged.h; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0D000000000000000000003 /* UserNotifications.framework in Frameworks */,
 				ED3791C42862E1F40080BD62 /* UniformTypeIdentifiers.framework in Frameworks */,
 				1A3E5EB023E9FE8300EDE661 /* QuartzCore.framework in Frameworks */,
 				1A3E5EAA23E9F26C00EDE661 /* IOSurface.framework in Frameworks */,
@@ -161,6 +166,7 @@
 		AB661C1C2148230E00291242 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C0D000000000000000000004 /* UserNotifications.framework */,
 				ED3791C32862E1F40080BD62 /* UniformTypeIdentifiers.framework */,
 				522D5958258159C1006F7F7A /* Carbon.framework */,
 				1A3E5EAF23E9FE8300EDE661 /* QuartzCore.framework */,
@@ -215,6 +221,7 @@
 				37A517B22159597E00FBA241 /* Screens.mm */,
 				37C09D8721580FE4006A6758 /* StorageProvider.mm */,
 				EDF8CDCC2964CB01001EE34F /* PlatformSettings.mm */,
+				C0D000000000000000000002 /* SystemNotifications.mm */,
 				AB7A61F02147C815003C5833 /* Products */,
 				AB661C1C2148230E00291242 /* Frameworks */,
 				18391676ECF0E983F4964357 /* WindowBaseImpl.mm */,
@@ -365,6 +372,7 @@
 				1AC7F1432DCA0C2E003A161B /* crapium.mm in Sources */,
 				18391D8CD1756DC858DC1A09 /* PopupImpl.mm in Sources */,
 				EDF8CDCD2964CB01001EE34F /* PlatformSettings.mm in Sources */,
+				C0D000000000000000000001 /* SystemNotifications.mm in Sources */,
 				64B1EA48E308E574685AFB07 /* metal.mm in Sources */,
 				64B1EF3C757B71526FFAF436 /* noarc.mm in Sources */,
 			);

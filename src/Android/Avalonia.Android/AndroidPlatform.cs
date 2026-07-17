@@ -6,6 +6,7 @@ using Avalonia.Android.Platform;
 using Avalonia.Android.Platform.Input;
 using Avalonia.Android.Platform.Vulkan;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.OpenGL.Egl;
@@ -65,6 +66,37 @@ namespace Avalonia
         {
             AndroidRenderingMode.Egl, AndroidRenderingMode.Software
         };
+
+        /// <summary>
+        /// Gets or sets the Android notification-channel ID used by
+        /// <see cref="Controls.Notifications.ISystemNotificationManager"/>.
+        /// </summary>
+        /// <remarks>
+        /// Android permanently associates user settings with a channel ID. Keep
+        /// this value stable after an application has shipped.
+        /// </remarks>
+        public string SystemNotificationChannelId { get; set; } = "avalonia.system-notifications";
+
+        /// <summary>
+        /// Gets or sets the user-visible Android notification-channel name. A
+        /// null value uses the application label.
+        /// </summary>
+        public string? SystemNotificationChannelName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the optional user-visible Android notification-channel description.
+        /// </summary>
+        public string? SystemNotificationChannelDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Android drawable resource ID used as the notification
+        /// status-bar icon. A value of zero falls back to the application icon.
+        /// </summary>
+        /// <remarks>
+        /// Android recommends a dedicated monochrome status-bar drawable rather
+        /// than a full-color launcher icon.
+        /// </remarks>
+        public int SystemNotificationSmallIconResourceId { get; set; }
     }
 }
 
@@ -94,6 +126,8 @@ namespace Avalonia.Android
                 .Bind<PlatformHotkeyConfiguration>().ToSingleton<PlatformHotkeyConfiguration>()
                 .Bind<KeyGestureFormatInfo>().ToConstant(new KeyGestureFormatInfo(new Dictionary<Key, string>() { }))
                 .Bind<IActivatableLifetime>().ToConstant(new AndroidActivatableLifetime());
+            AvaloniaLocator.CurrentMutable
+                .Bind<ISystemNotificationManager>().ToSingleton<AndroidSystemNotificationManager>();
 
             var graphics = InitializeGraphics(Options);
             if (graphics is not null)

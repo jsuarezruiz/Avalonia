@@ -201,9 +201,16 @@ public:
 
 static ComPtr<IAvnGCHandleDeallocatorCallback> _deallocator;
 static ComPtr<IAvnDispatcher> _dispatcher;
-class AvaloniaNative : public ComSingleObject<IAvaloniaNativeFactory, &IID_IAvaloniaNativeFactory>
+class AvaloniaNative :
+    public ComObject,
+    public virtual IAvaloniaNativeFactory,
+    public virtual IAvnSystemNotificationProviderFactory
 {
-    
+    BEGIN_INTERFACE_MAP()
+    INTERFACE_MAP_ENTRY(IAvaloniaNativeFactory, IID_IAvaloniaNativeFactory)
+    INTERFACE_MAP_ENTRY(IAvnSystemNotificationProviderFactory, IID_IAvnSystemNotificationProviderFactory_V2)
+    END_INTERFACE_MAP()
+
 public:
     FORWARD_IUNKNOWN()
     
@@ -447,6 +454,19 @@ public:
         }
     }
 
+    virtual HRESULT CreateSystemNotificationProvider(IAvnSystemNotificationProvider** ppv) override
+    {
+        START_COM_CALL;
+        if (ppv == nullptr)
+            return E_POINTER;
+
+        @autoreleasepool
+        {
+            *ppv = ::CreateSystemNotificationProvider();
+            return S_OK;
+        }
+    }
+
     virtual HRESULT CreatePlatformBehaviorInhibition(IAvnPlatformBehaviorInhibition** ppv) override
     {
         START_COM_CALL;
@@ -565,4 +585,3 @@ AvnPoint ConvertPointY (AvnPoint p)
     
     return p;
 }
-

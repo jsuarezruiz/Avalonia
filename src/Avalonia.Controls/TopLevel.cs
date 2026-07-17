@@ -129,6 +129,7 @@ namespace Avalonia.Controls
         private VisualLayerManager? _visualLayerManager;
         private TargetWeakEventSubscriber<TopLevel, ResourcesChangedEventArgs>? _resourcesChangesSubscriber;
         private IStorageProvider? _storageProvider;
+        private MessageDialogService? _messageDialogProvider;
         private Screens? _screens;
         private readonly PresentationSource _source;
         private readonly TopLevelHost _topLevelHost;
@@ -517,6 +518,29 @@ namespace Avalonia.Controls
             ?? PlatformImpl?.TryGetFeature<IStorageProvider>()
             ?? new NoopStorageProvider();
 
+        /// <summary>
+        /// Gets the message-dialog service owned by this top level.
+        /// </summary>
+        public IMessageDialogService MessageDialogs => GetMessageDialogProvider();
+
+        private MessageDialogService GetMessageDialogProvider()
+        {
+            if (_messageDialogProvider is not null)
+                return _messageDialogProvider;
+
+            if (PlatformImpl is null)
+                return _messageDialogProvider = new MessageDialogService(this, null, false);
+
+            var providerFactory = AvaloniaLocator.Current.GetService<INativeMessageDialogProviderFactory>();
+            var factoryProvider = providerFactory?.CreateProvider(this);
+            var nativeProvider = factoryProvider ?? PlatformImpl?.TryGetFeature<INativeMessageDialogProvider>();
+
+            return _messageDialogProvider = new MessageDialogService(
+                this,
+                nativeProvider,
+                disposeProvider: factoryProvider is not null);
+        }
+
         public IInsetsManager? InsetsManager => PlatformImpl?.TryGetFeature<IInsetsManager>();
         public IInputPane? InputPane => PlatformImpl?.TryGetFeature<IInputPane>();
         public ILauncher Launcher => PlatformImpl?.TryGetFeature<ILauncher>() ?? new NoopLauncher();
@@ -683,6 +707,9 @@ namespace Avalonia.Controls
             _source.RootVisual = null!;
 
             OnClosed(EventArgs.Empty);
+
+            _messageDialogProvider?.Dispose();
+            _messageDialogProvider = null;
 
             LayoutManager.Dispose();
             _platformImplBindings.Clear();

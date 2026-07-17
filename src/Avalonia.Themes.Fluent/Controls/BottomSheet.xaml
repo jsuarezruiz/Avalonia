@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:ClassModifier="internal">
+  <PageSlide x:Key="BottomSheetDefaultTransition" Duration="0:0:0.24" Orientation="Vertical" />
+
+  <ControlTheme x:Key="{x:Type BottomSheet}" TargetType="BottomSheet">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Background" Value="{DynamicResource FlyoutPresenterBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource FlyoutBorderThemeBrush}" />
+    <Setter Property="BorderThickness" Value="1,1,1,0" />
+    <Setter Property="Padding" Value="24,8,24,24" />
+    <Setter Property="Transition" Value="{DynamicResource BottomSheetDefaultTransition}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="12,12,0,0"
+                BoxShadow="0 -4 20 0 #44000000"
+                TextElement.Foreground="{TemplateBinding Foreground}">
+          <Border Padding="{TemplateBinding SafeAreaPadding}">
+            <Grid Margin="{TemplateBinding Padding}"
+                  RowDefinitions="Auto,Auto,*">
+              <Border x:Name="PART_DragHandle"
+                      Width="64"
+                      Height="44"
+                      Margin="0,-8,0,-4"
+                      HorizontalAlignment="Center"
+                      Background="Transparent"
+                      BorderBrush="Transparent"
+                      CornerRadius="8"
+                      Cursor="SizeNorthSouth"
+                      AutomationProperties.Name="{DynamicResource StringBottomSheetDragHandleName}"
+                      AutomationProperties.HelpText="{DynamicResource StringBottomSheetDragHandleHelpText}">
+                <Border x:Name="PART_DragHandleIndicator"
+                        Width="48"
+                        Height="5"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                        CornerRadius="3" />
+              </Border>
+              <ContentPresenter x:Name="PART_HeaderPresenter"
+                                Grid.Row="1"
+                                Margin="0,0,0,12"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                FontSize="20"
+                                FontWeight="SemiBold"
+                                IsVisible="{TemplateBinding Header, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                HorizontalContentAlignment="Stretch" />
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Grid.Row="2"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </Grid>
+          </Border>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:dragging /template/ Border#PART_DragHandleIndicator">
+      <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+    <Style Selector="^ /template/ Border#PART_DragHandle:focus-visible">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

@@ -18,10 +18,53 @@
 #include "WindowImpl.h"
 #include "AvnTextInputMethod.h"
 #include "AvnView.h"
+#include "AvnString.h"
 
 @class AutoFitContentView;
 
+static NSImage* GetMessageDialogIcon(AvnMessageDialogIcon icon) {
+    if (@available(macOS 11.0, *)) {
+        NSString* symbolName = nil;
+        switch (icon) {
+            case MessageDialogIconInformation:
+                symbolName = @"info.circle.fill";
+                break;
+            case MessageDialogIconSuccess:
+                symbolName = @"checkmark.circle.fill";
+                break;
+            case MessageDialogIconWarning:
+                symbolName = @"exclamationmark.triangle.fill";
+                break;
+            case MessageDialogIconError:
+                symbolName = @"xmark.octagon.fill";
+                break;
+            case MessageDialogIconQuestion:
+                symbolName = @"questionmark.circle.fill";
+                break;
+            default:
+                break;
+        }
+
+        if (symbolName != nil)
+            return [NSImage imageWithSystemSymbolName:symbolName accessibilityDescription:nil];
+    }
+
+    switch (icon) {
+        case MessageDialogIconInformation:
+        case MessageDialogIconQuestion:
+            return [NSImage imageNamed:NSImageNameInfo];
+        case MessageDialogIconSuccess:
+            return [NSImage imageNamed:NSImageNameStatusAvailable];
+        case MessageDialogIconWarning:
+        case MessageDialogIconError:
+            return [NSImage imageNamed:NSImageNameCaution];
+        default:
+            return nil;
+    }
+}
+
 WindowBaseImpl::~WindowBaseImpl() {
+    _messageDialog = nil;
     View = nullptr;
     Window = nullptr;
 }
@@ -30,6 +73,7 @@ WindowBaseImpl::WindowBaseImpl(IAvnWindowBaseEvents *events, bool usePanel) : To
     _children = std::list<ComObjectWeakPtr<WindowBaseImpl>>();
     _shown = false;
     _inResize = false;
+    _messageDialog = nil;
     BaseEvents = events;
 
     lastPositionSet = { 0, 0 };
@@ -486,4 +530,92 @@ HRESULT WindowBaseImpl::SetParent(IAvnWindowBase *parent) {
 
         return S_OK;
     }
+}
+
+HRESULT WindowBaseImpl::ShowMessageDialog(
+    const char* title,
+    const char* message,
+    const char* detail,
+    AvnMessageDialogIcon icon,
+    IAvnStringArray* actions,
+    int defaultActionIndex,
+    int cancelActionIndex,
+    int destructiveActionMask,
+    IAvnMessageDialogEvents* events) {
+    START_COM_CALL;
+
+    @autoreleasepool {
+        if (actions == nullptr || events == nullptr)
+            return E_POINTER;
+        if (_messageDialog != nil && _messageDialog.window.sheetParent != nil)
+            return E_FAIL;
+
+        auto alert = [[NSAlert alloc] init];
+        alert.messageText = message == nullptr ? @"" : [NSString stringWithUTF8String:message];
+        alert.informativeText = detail == nullptr ? @"" : [NSString stringWithUTF8String:detail];
+        alert.alertStyle = icon == MessageDialogIconError
+            ? NSAlertStyleCritical
+            : icon == MessageDialogIconWarning || icon == MessageDialogIconQuestion
+                ? NSAlertStyleWarning
+                : NSAlertStyleInformational;
+
+        auto alertIcon = GetMessageDialogIcon(icon);
+        if (alertIcon != nil)
+            alert.icon = alertIcon;
+
+        if (title != nullptr && title[0] != '\0')
+            alert.window.title = [NSString stringWithUTF8String:title];
+
+        auto actionCount = actions->GetCount();
+        for (unsigned int index = 0; index < actionCount; index++) {
+            IAvnString* actionString = nullptr;
+            if (actions->Get(index, &actionString) != S_OK || actionString == nullptr)
+                return E_FAIL;
+
+            auto button = [alert addButtonWithTitle:GetNSStringAndRelease(actionString)];
+            button.keyEquivalent = @"";
+            if ((int)index == defaultActionIndex)
+                button.keyEquivalent = @"\r";
+            if ((int)index == cancelActionIndex)
+                button.keyEquivalent = @"\e";
+            if (@available(macOS 11.0, *)) {
+                button.hasDestructiveAction = (destructiveActionMask & (1 << index)) != 0;
+            }
+        }
+
+        ComPtr<IAvnMessageDialogEvents> ownedEvents(events);
+        auto weakThis = ComObjectWeakPtr<WindowBaseImpl>(this);
+        _messageDialog = alert;
+        [alert beginSheetModalForWindow:Window completionHandler:^(NSModalResponse response) {
+            auto selectedIndex = -1;
+            if (response >= NSAlertFirstButtonReturn &&
+                response < NSAlertFirstButtonReturn + actionCount) {
+                selectedIndex = (int)(response - NSAlertFirstButtonReturn);
+            }
+
+            auto owner = weakThis.tryGet();
+            if (owner && owner->_messageDialog == alert)
+                owner->_messageDialog = nil;
+            ownedEvents->Completed(selectedIndex);
+        }];
+        return S_OK;
+    }
+}
+
+HRESULT WindowBaseImpl::CancelMessageDialog() {
+    START_COM_CALL;
+
+    auto dialog = _messageDialog;
+    auto cancel = ^{
+        auto sheetParent = dialog.window.sheetParent;
+        if (sheetParent != nil) {
+            [sheetParent endSheet:dialog.window returnCode:NSModalResponseCancel];
+        }
+    };
+
+    if ([NSThread isMainThread])
+        cancel();
+    else
+        dispatch_async(dispatch_get_main_queue(), cancel);
+    return S_OK;
 }

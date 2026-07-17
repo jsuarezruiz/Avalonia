@@ -33,6 +33,7 @@ namespace Avalonia.Browser
         private readonly IInsetsManager _insetsManager;
         private readonly JSObject _container;
         private readonly BrowserInputHandler _inputHandler;
+        private readonly INativeMessageDialogProvider? _messageDialogProvider;
         private string _currentCursor = CssCursor.Default;
         private BrowserSurface? _surface;
         private readonly int _topLevelId;
@@ -62,6 +63,9 @@ namespace Avalonia.Browser
             _nativeControlHost = new BrowserNativeControlHost(nativeControlHost);
             _storageProvider = new BrowserStorageProvider();
             _clipboard = new Clipboard(new ClipboardImpl());
+            _messageDialogProvider = MessageDialogHelper.IsSupported()
+                ? new BrowserMessageDialogProvider(container)
+                : null;
 
             _container = container;
 
@@ -94,6 +98,7 @@ namespace Avalonia.Browser
 
         public void Dispose()
         {
+            s_topLevels.Remove(_topLevelId);
             _surface?.Dispose();
             _surface = null;
         }
@@ -196,6 +201,11 @@ namespace Avalonia.Browser
             if (featureType == typeof(ILauncher))
             {
                 return new BrowserLauncher();
+            }
+
+            if (featureType == typeof(INativeMessageDialogProvider))
+            {
+                return _messageDialogProvider;
             }
 
             return null;

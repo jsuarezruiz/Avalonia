@@ -679,6 +679,24 @@ enum AvnPlatformThemeVariant
     HighContrastDark,
 }
 
+enum AvnMessageDialogIcon
+{
+    MessageDialogIconNone,
+    MessageDialogIconInformation,
+    MessageDialogIconSuccess,
+    MessageDialogIconWarning,
+    MessageDialogIconError,
+    MessageDialogIconQuestion,
+}
+
+enum AvnSystemNotificationPermission
+{
+    SystemNotificationPermissionUnsupported,
+    SystemNotificationPermissionNotDetermined,
+    SystemNotificationPermissionDenied,
+    SystemNotificationPermissionGranted,
+}
+
 enum AvnPointerDeviceType
 {
     Mouse,
@@ -728,6 +746,54 @@ interface IAvnString : IUnknown
 {
      HRESULT Pointer(void**retOut);
      HRESULT Length(int*ret);
+}
+
+[uuid(6c364dda-2329-4abf-9f08-583852119767)]
+interface IAvnMessageDialogEvents : IUnknown
+{
+     void Completed(int actionIndex);
+}
+
+[uuid(3091e184-31aa-427c-8941-8e666d093e26)]
+interface IAvnMessageDialogProvider : IUnknown
+{
+     HRESULT ShowMessageDialog(
+         [const] char* title,
+         [const] char* message,
+         [const] char* detail,
+         AvnMessageDialogIcon icon,
+         IAvnStringArray* actions,
+         int defaultActionIndex,
+         int cancelActionIndex,
+         int destructiveActionMask,
+         IAvnMessageDialogEvents* events);
+     HRESULT CancelMessageDialog();
+}
+
+[uuid(2ba5fae9-fd70-4767-8c1e-b7492c75a6ff)]
+interface IAvnSystemNotificationEvents : IUnknown
+{
+     void Completed(int result, int errorCode);
+}
+
+[uuid(661843f7-67e1-4788-8640-bfa34e8cf369)]
+interface IAvnSystemNotificationProvider : IUnknown
+{
+     bool IsSupported();
+     HRESULT GetPermissionStatus(IAvnSystemNotificationEvents* events);
+     HRESULT RequestPermission(IAvnSystemNotificationEvents* events);
+     HRESULT ShowSystemNotification(
+         [const] char* identifier,
+         [const] char* title,
+         [const] char* message,
+         IAvnSystemNotificationEvents* events);
+     HRESULT RemoveSystemNotification([const] char* identifier);
+}
+
+[uuid(8b2bfac2-9b3e-4e6d-a622-d7d261124204)]
+interface IAvnSystemNotificationProviderFactory : IUnknown
+{
+     HRESULT CreateSystemNotificationProvider(IAvnSystemNotificationProvider** ppv);
 }
 
 [uuid(e8cccd3e-e6dc-430a-a0b9-2ce7d7922de6)]

@@ -1,14 +1,21 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
+using Avalonia.Controls.Platform;
 using Avalonia.Input;
 using Avalonia.Native.Interop;
 using Avalonia.Platform;
+using MicroCom.Runtime;
 
 namespace Avalonia.Native
 {
     internal abstract class WindowBaseImpl : TopLevelImpl, IWindowBaseImpl
     {
+        private const int NoInterface = unchecked((int)0x80004002);
+        private AvaloniaNativeMessageDialogProvider? _messageDialogProvider;
+        private bool _messageDialogProviderUnavailable;
+
         internal WindowBaseImpl(IAvaloniaNativeFactory factory) : base(factory)
         {
 
@@ -75,8 +82,35 @@ namespace Avalonia.Native
 
         public override void Dispose()
         {
+            _messageDialogProvider?.Dispose();
+            _messageDialogProvider = null;
             Native?.Close();
             base.Dispose();
+        }
+
+        public override object? TryGetFeature(Type featureType)
+        {
+            if (featureType == typeof(INativeMessageDialogProvider) &&
+                !_messageDialogProviderUnavailable &&
+                Native is { } native)
+            {
+                if (_messageDialogProvider is not null)
+                    return _messageDialogProvider;
+
+                try
+                {
+                    return _messageDialogProvider = new AvaloniaNativeMessageDialogProvider(
+                        native.QueryInterface<IAvnMessageDialogProvider>());
+                }
+                catch (COMException exception) when (exception.HResult == NoInterface)
+                {
+                    // Keep the feature optional when a managed assembly is paired with
+                    // an older Avalonia.Native binary that does not expose the interface.
+                    _messageDialogProviderUnavailable = true;
+                }
+            }
+
+            return base.TryGetFeature(featureType);
         }
 
         public virtual void Show(bool activate, bool isDialog)

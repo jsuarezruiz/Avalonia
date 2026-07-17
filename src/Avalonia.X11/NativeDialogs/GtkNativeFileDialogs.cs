@@ -181,7 +181,6 @@ namespace Avalonia.X11.NativeDialogs
                 {
                     tcs.TrySetResult((null, null));
                     Dispose();
-                    return false;
                 }),
                 ConnectSignal<signal_dialog_response>(dlg, "response", (_, resp, __) =>
                 {
@@ -215,7 +214,6 @@ namespace Avalonia.X11.NativeDialogs
                     gtk_widget_hide(dlg);
                     Dispose();
                     tcs.TrySetResult((result, selectedFilter));
-                    return false;
                 })
             };
             using (var open = new Utf8Buffer(
@@ -270,9 +268,17 @@ namespace Avalonia.X11.NativeDialogs
             gtk_widget_realize(chooser);
             var window = gtk_widget_get_window(chooser);
             var parent = GetForeignWindow(xid);
-            if (window != IntPtr.Zero && parent != IntPtr.Zero)
+            if (parent == IntPtr.Zero)
+                return;
+
+            try
             {
-                gdk_window_set_transient_for(window, parent);
+                if (window != IntPtr.Zero)
+                    gdk_window_set_transient_for(window, parent);
+            }
+            finally
+            {
+                g_object_unref(parent);
             }
         }
     }

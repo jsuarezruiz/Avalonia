@@ -6,9 +6,10 @@ using Avalonia.Controls.Embedding;
 
 namespace Avalonia.Browser
 {
-    public class AvaloniaView
+    public class AvaloniaView : IDisposable
     {
         private readonly EmbeddableControlRoot _topLevel;
+        private bool _disposed;
 
         /// <param name="divId">ID of the html element where avalonia content should be rendered.</param>
         public AvaloniaView(string divId)
@@ -63,5 +64,14 @@ namespace Avalonia.Browser
         }
 
         internal TopLevel TopLevel => _topLevel;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _topLevel.Dispose();
+        }
     }
 }

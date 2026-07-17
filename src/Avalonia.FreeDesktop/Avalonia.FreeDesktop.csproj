@@ -40,6 +40,7 @@
     <AdditionalFiles Include="DBusXml/org.freedesktop.portal.FileChooser.xml" DBusGeneratorMode="Proxy" />
     <AdditionalFiles Include="DBusXml/org.freedesktop.portal.Request.xml" DBusGeneratorMode="Proxy" />
     <AdditionalFiles Include="DBusXml/org.freedesktop.portal.Settings.xml" DBusGeneratorMode="Proxy" />
+    <AdditionalFiles Include="DBusXml/org.freedesktop.portal.Notification.xml" DBusGeneratorMode="Proxy" />
 
     <AdditionalFiles Include="DBusXml/org.kde.StatusNotifierWatcher.xml" DBusGeneratorMode="Proxy" />
     <AdditionalFiles Include="DBusXml/org.kde.StatusNotifierItem.xml" DBusGeneratorMode="Handler" />

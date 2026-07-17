@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -42,6 +44,7 @@ namespace Avalonia
         private Action<IReadOnlyList<IStyle>>? _stylesAdded;
         private Action<IReadOnlyList<IStyle>>? _stylesRemoved;
         private IApplicationLifetime? _applicationLifetime;
+        private ISystemNotificationManager? _systemNotifications;
         private bool _setupCompleted;
 
         /// <summary>
@@ -201,6 +204,32 @@ namespace Avalonia
         /// as specific top levels might have different settings set-up. 
         /// </remarks>
         public IPlatformSettings? PlatformSettings => this.TryGetFeature<IPlatformSettings>();
+
+        /// <summary>
+        /// Gets the application-scoped operating-system notification service.
+        /// </summary>
+        /// <remarks>
+        /// This service never renders an Avalonia notification as a fallback. Check
+        /// <see cref="ISystemNotificationManager.IsSupported"/> before requesting permission.
+        /// </remarks>
+        public ISystemNotificationManager SystemNotifications
+        {
+            get
+            {
+                if (Volatile.Read(ref _systemNotifications) is { } existing)
+                    return existing;
+
+                if (this.TryGetFeature<ISystemNotificationManager>() is { } platformManager)
+                {
+                    var manager = new CoordinatedSystemNotificationManager(platformManager);
+                    return Interlocked.CompareExchange(ref _systemNotifications, manager, null) ?? manager;
+                }
+
+                // Do not cache this result: an embedding host can register its platform
+                // service after constructing the Application but before setup completes.
+                return UnsupportedSystemNotificationManager.Instance;
+            }
+        }
         
         event Action<IReadOnlyList<IStyle>>? IGlobalStyles.GlobalStylesAdded
         {
@@ -306,6 +335,7 @@ namespace Avalonia
         /// <list type="bullet">
         /// <item>IPlatformSettings</item>
         /// <item>IActivatableApplicationLifetime</item>
+        /// <item>ISystemNotificationManager</item>
         /// </list>
         /// </remarks>
         public object? TryGetFeature(Type featureType)
@@ -318,6 +348,11 @@ namespace Avalonia
             if (featureType == typeof(IActivatableLifetime))
             {
                 return AvaloniaLocator.Current.GetService<IActivatableLifetime>();
+            }
+
+            if (featureType == typeof(ISystemNotificationManager))
+            {
+                return AvaloniaLocator.Current.GetService<ISystemNotificationManager>();
             }
 
             // Do not return just any service from AvaloniaLocator.

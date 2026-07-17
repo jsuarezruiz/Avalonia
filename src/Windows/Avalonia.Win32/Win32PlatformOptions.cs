@@ -102,6 +102,28 @@ public enum Win32CompositionMode
 public class Win32PlatformOptions
 {
     /// <summary>
+    /// Gets or sets the stable AppUserModelID used by system notifications in an
+    /// unpackaged application.
+    /// </summary>
+    /// <remarks>
+    /// Packaged applications do not need this option. For an installed unpackaged
+    /// application, its installer should create a Start menu shortcut carrying the
+    /// same AppUserModelID. The value must be stable across application updates.
+    /// </remarks>
+    public string? SystemNotificationAppUserModelId { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether Avalonia creates the current-user Start menu registration
+    /// required by legacy Windows notifications for an unpackaged application.
+    /// </summary>
+    /// <remarks>
+    /// This is intended for development tools and portable applications. Production
+    /// installers should own shortcut registration and leave this option disabled.
+    /// <see cref="SystemNotificationAppUserModelId"/> must also be set.
+    /// </remarks>
+    public bool RegisterSystemNotificationsForCurrentUser { get; set; }
+
+    /// <summary>
     /// Embeds popups to the window when set to true. The default value is false.
     /// </summary>
     public bool OverlayPopups { get; set; }
