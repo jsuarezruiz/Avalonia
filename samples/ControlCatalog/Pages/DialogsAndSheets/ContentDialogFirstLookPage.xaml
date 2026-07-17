@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.ContentDialogFirstLookPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="ContentDialog" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="ContentDialog is a managed, lookless modal surface. ShowAsync always receives an explicit TopLevel owner."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="TitleLabel" Text="Title" FontWeight="SemiBold" />
+        <TextBox x:Name="TitleBox" Text="Save changes?"
+                 AutomationProperties.LabeledBy="{Binding #TitleLabel}" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="BodyLabel" Text="Body" FontWeight="SemiBold" />
+        <TextBox x:Name="BodyBox" Text="Review the values below before saving."
+                 AutomationProperties.LabeledBy="{Binding #BodyLabel}" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="DefaultActionLabel" Text="Default action" FontWeight="SemiBold" />
+        <ComboBox x:Name="DefaultActionBox" SelectedIndex="0"
+                  AutomationProperties.LabeledBy="{Binding #DefaultActionLabel}">
+          <ComboBoxItem Content="Primary" />
+          <ComboBoxItem Content="Secondary" />
+          <ComboBoxItem Content="None" />
+        </ComboBox>
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="TransitionLabel" Text="Transition" FontWeight="SemiBold" />
+        <ComboBox x:Name="TransitionBox" SelectedIndex="0"
+                  AutomationProperties.LabeledBy="{Binding #TransitionLabel}">
+          <ComboBoxItem Content="Theme default" />
+          <ComboBoxItem Content="None" />
+          <ComboBoxItem Content="Cross fade · 500 ms" />
+          <ComboBoxItem Content="Vertical slide · 400 ms" />
+          <ComboBoxItem Content="Composite fade + slide" />
+          <ComboBoxItem Content="Custom scale + lift" />
+        </ComboBox>
+      </StackPanel>
+
+      <WrapPanel ItemSpacing="16" LineSpacing="8">
+        <CheckBox x:Name="LightDismissCheck" Content="Light dismiss" />
+        <CheckBox x:Name="EscapeCheck" Content="Escape" IsChecked="True" />
+        <CheckBox x:Name="SystemBackCheck" Content="System back" IsChecked="True" />
+      </WrapPanel>
+
+      <Button Content="Show ContentDialog" Click="OnShowDialog"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="No result yet."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

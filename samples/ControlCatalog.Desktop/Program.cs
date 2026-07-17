@@ -128,7 +128,9 @@ namespace ControlCatalog.Desktop
             {
                 builder.With(new Win32PlatformOptions()
                 {
-                    CompositionMode = [Win32CompositionMode.LowLatencyDxgiSwapChain]
+                    CompositionMode = [Win32CompositionMode.LowLatencyDxgiSwapChain],
+                    SystemNotificationAppUserModelId = "Avalonia.ControlCatalog",
+                    RegisterSystemNotificationsForCurrentUser = true
                 });
                 return builder.StartWithClassicDesktopLifetime(args);
             }
@@ -142,6 +144,11 @@ namespace ControlCatalog.Desktop
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new Win32PlatformOptions
+                {
+                    SystemNotificationAppUserModelId = "Avalonia.ControlCatalog",
+                    RegisterSystemNotificationsForCurrentUser = true
+                })
                 .With(new X11PlatformOptions
                 {
                     EnableMultiTouch = true,

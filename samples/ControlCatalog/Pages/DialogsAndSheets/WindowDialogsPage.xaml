@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.WindowDialogsPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Window dialogs"
+                 FontSize="22"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="Compare modeless, modal, owned, decorated, and taskbar-hidden Window behavior. These examples require a desktop Window owner and are separate from managed ContentDialog and native message dialogs."
+                 TextWrapping="Wrap"
+                 Opacity="0.7" />
+
+      <TextBlock Text="Decorated windows"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <WrapPanel ItemWidth="280" ItemSpacing="8" LineSpacing="8">
+        <Button Content="Open modeless decorated window"
+                Click="OnOpenDecoratedWindow"
+                HorizontalContentAlignment="Center" />
+        <Button Content="Open modal decorated window"
+                Click="OnOpenDecoratedDialog"
+                HorizontalContentAlignment="Center" />
+      </WrapPanel>
+
+      <TextBlock Text="Plain windows"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <WrapPanel ItemWidth="280" ItemSpacing="8" LineSpacing="8">
+        <Button Content="Open modal dialog"
+                Click="OnOpenDialog"
+                HorizontalContentAlignment="Center" />
+        <Button Content="Open modal without taskbar icon"
+                Click="OnOpenDialogWithoutTaskbarIcon"
+                HorizontalContentAlignment="Center" />
+        <Button Content="Open owned modeless window"
+                Click="OnOpenOwnedWindow"
+                HorizontalContentAlignment="Center" />
+        <Button Content="Open owned window without taskbar icon"
+                Click="OnOpenOwnedWindowWithoutTaskbarIcon"
+                HorizontalContentAlignment="Center" />
+      </WrapPanel>
+
+      <Border Padding="12"
+              CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText"
+                   Text="Choose an example to open a secondary Window."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

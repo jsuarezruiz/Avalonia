@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.ContentDialogFocusPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Focus, keyboard, and accessibility" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="Exercise initial focus, cyclic Tab navigation, Enter and Escape actions, automation announcements, and focus restoration after the modal closes."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="FocusMarkerLabel" Text="Focus restoration marker" FontWeight="SemiBold" />
+        <TextBox x:Name="FocusMarkerBox" Text="Focus should return here"
+                 AutomationProperties.LabeledBy="{Binding #FocusMarkerLabel}" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="DefaultButtonLabel" Text="Initial/default action" FontWeight="SemiBold" />
+        <ComboBox x:Name="DefaultButtonBox" SelectedIndex="0"
+                  AutomationProperties.LabeledBy="{Binding #DefaultButtonLabel}">
+          <ComboBoxItem Content="Primary" />
+          <ComboBoxItem Content="Secondary" />
+          <ComboBoxItem Content="None · focus first field" />
+        </ComboBox>
+      </StackPanel>
+
+      <WrapPanel ItemSpacing="16" LineSpacing="8">
+        <CheckBox x:Name="EscapeCheck" Content="Escape" IsChecked="True" />
+        <CheckBox x:Name="SystemBackCheck" Content="System back" IsChecked="True" />
+        <CheckBox x:Name="LightDismissCheck" Content="Light dismiss" />
+      </WrapPanel>
+
+      <TextBlock Text="While the dialog is open, cycle with Tab and Shift+Tab. Enter invokes the selected default action; Escape invokes Cancel when enabled."
+                 TextWrapping="Wrap" FontSize="12" Opacity="0.62" />
+
+      <Button Content="Open focus playground" Click="OnShowDialog"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="No focus test has run."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

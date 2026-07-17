@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
@@ -128,59 +131,45 @@ namespace ControlCatalog.Pages
         /// </summary>
         internal static ContentPage CreateGalleryHomePage(
             NavigationPage nav,
-            (string Group, string Title, string Description, Func<UserControl> Factory)[] demos)
+            (string Group, string Title, string Description, Func<UserControl> Factory)[] demos,
+            (string Group, string Title, string Description, Func<TopLevel, Task> Action)[]? actions = null)
         {
-            var stack = new StackPanel { Margin = new Thickness(12), Spacing = 16 };
+            var stack = new StackPanel { Margin = new Thickness(20), Spacing = 12 };
+            var actionStatus = new TextBlock
+            {
+                Margin = new Thickness(20, 8),
+                TextWrapping = TextWrapping.Wrap,
+                IsVisible = false
+            };
+            AutomationProperties.SetName(actionStatus, "Showcase status");
+            AutomationProperties.SetLiveSetting(actionStatus, AutomationLiveSetting.Polite);
 
-            var groups = new Dictionary<string, WrapPanel>();
+            var groups = new Dictionary<string, UniformGrid>();
             var groupOrder = new List<string>();
 
-            foreach (var (group, title, description, factory) in demos)
+            UniformGrid GetGroup(string group)
             {
-                if (!groups.ContainsKey(group))
+                if (!groups.TryGetValue(group, out var panel))
                 {
-                    groups[group] = new WrapPanel
+                    panel = new UniformGrid
                     {
-                        Orientation = Orientation.Horizontal,
-                        HorizontalAlignment = HorizontalAlignment.Left
+                        Columns = 1,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        ColumnSpacing = 8,
+                        RowSpacing = 8
                     };
+                    groups.Add(group, panel);
                     groupOrder.Add(group);
                 }
 
+                return panel;
+            }
+
+            foreach (var (group, title, description, factory) in demos)
+            {
                 var demoFactory = factory;
                 var demoTitle = title;
-
-                var card = new Button
-                {
-                    Width = 170,
-                    MinHeight = 80,
-                    Margin = new Thickness(0, 0, 8, 8),
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    VerticalContentAlignment = VerticalAlignment.Top,
-                    Padding = new Thickness(12, 8),
-                    Content = new StackPanel
-                    {
-                        Spacing = 4,
-                        Children =
-                        {
-                            new TextBlock
-                            {
-                                Text = title,
-                                FontSize = 13,
-                                FontWeight = FontWeight.SemiBold,
-                                TextWrapping = TextWrapping.Wrap
-                            },
-                            new TextBlock
-                            {
-                                Text = description,
-                                FontSize = 11,
-                                Opacity = 0.6,
-                                TextWrapping = TextWrapping.Wrap
-                            }
-                        }
-                    }
-                };
+                var card = CreateGalleryCard(title, description);
 
                 card.Click += async (_, _) =>
                 {
@@ -198,6 +187,7 @@ namespace ControlCatalog.Pages
                         Padding = new Thickness(8, 4),
                         VerticalAlignment = VerticalAlignment.Center
                     };
+                    AutomationProperties.SetName(closeBtn, $"Close {demoTitle} sample");
                     Grid.SetColumn(closeBtn, 1);
                     headerGrid.Children.Add(closeBtn);
                     closeBtn.Click += async (_, _) => await nav.PopAsync(null);
@@ -213,7 +203,47 @@ namespace ControlCatalog.Pages
                     await nav.PushAsync(page, null);
                 };
 
-                groups[group].Children.Add(card);
+                GetGroup(group).Children.Add(card);
+            }
+
+            if (actions is not null)
+            {
+                foreach (var (group, title, description, action) in actions)
+                {
+                    var card = CreateGalleryCard(title, description);
+
+                    card.Click += async (_, _) =>
+                    {
+                        if (TopLevel.GetTopLevel(card) is not { } owner)
+                            return;
+
+                        card.IsEnabled = false;
+                        try
+                        {
+                            await action(owner);
+                            SetActionStatus(actionStatus, card, description, $"{title} completed.");
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            SetActionStatus(actionStatus, card, description, $"{title} canceled.");
+                        }
+                        catch (Exception exception)
+                        {
+                            Debug.WriteLine($"Gallery showcase '{title}' failed: {exception}");
+                            SetActionStatus(
+                                actionStatus,
+                                card,
+                                description,
+                                $"{title} failed: {exception.Message}");
+                        }
+                        finally
+                        {
+                            card.IsEnabled = true;
+                        }
+                    };
+
+                    GetGroup(group).Children.Add(card);
+                }
             }
 
             foreach (var groupName in groupOrder)
@@ -229,14 +259,95 @@ namespace ControlCatalog.Pages
                 stack.Children.Add(groups[groupName]);
             }
 
+            stack.SizeChanged += (_, args) =>
+            {
+                const double preferredCardWidth = 170;
+                const double minimumTwoColumnWidth = 280;
+                const double spacing = 8;
+
+                var availableWidth = args.NewSize.Width;
+                if (availableWidth <= 0)
+                    return;
+
+                var columnCount = availableWidth >= minimumTwoColumnWidth
+                    ? Math.Max(2, (int)Math.Floor((availableWidth + spacing) / (preferredCardWidth + spacing)))
+                    : 1;
+
+                // Keep one shared responsive grid across every section. Reducing the
+                // column count to a section's child count makes sparse groups stretch
+                // their cards wider than the rest of the gallery.
+                foreach (var panel in groups.Values)
+                    panel.Columns = columnCount;
+            };
+
+            var content = new Grid { RowDefinitions = new RowDefinitions("*, Auto") };
+            content.Children.Add(new ScrollViewer
+            {
+                Content = stack,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch
+            });
+            Grid.SetRow(actionStatus, 1);
+            content.Children.Add(actionStatus);
+
             var homePage = new ContentPage
             {
-                Content = new ScrollViewer { Content = stack },
+                Content = content,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
                 VerticalContentAlignment = VerticalAlignment.Stretch
             };
             NavigationPage.SetHasNavigationBar(homePage, false);
             return homePage;
+        }
+
+        private static void SetActionStatus(
+            TextBlock status,
+            Button card,
+            string description,
+            string message)
+        {
+            status.Text = message;
+            status.IsVisible = true;
+            AutomationProperties.SetHelpText(card, $"{description} {message}");
+            ToolTip.SetTip(card, $"{description}\n\n{message}");
+        }
+
+        private static Button CreateGalleryCard(string title, string description)
+        {
+            var card = new Button
+            {
+                MinHeight = 112,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                VerticalContentAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(12, 10),
+                Content = new StackPanel
+                {
+                    Spacing = 4,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = title,
+                            FontSize = 13,
+                            FontWeight = FontWeight.SemiBold,
+                            TextWrapping = TextWrapping.Wrap
+                        },
+                        new TextBlock
+                        {
+                            Text = description,
+                            FontSize = 11,
+                            Opacity = 0.65,
+                            TextWrapping = TextWrapping.Wrap
+                        }
+                    }
+                }
+            };
+            AutomationProperties.SetName(card, title);
+            AutomationProperties.SetHelpText(card, description);
+            ToolTip.SetTip(card, description);
+            return card;
         }
     }
 }

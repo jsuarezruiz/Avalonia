@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.ContentDialogAdaptivePage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Adaptive layout stress" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="Resize the owner while the dialog is open and combine long localization, larger text, RTL flow, and scrollable form content."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <WrapPanel ItemSpacing="16" LineSpacing="8">
+        <CheckBox x:Name="LongCopyCheck" Content="Long localized copy" IsChecked="True" />
+        <CheckBox x:Name="LargeTextCheck" Content="Large text" />
+        <CheckBox x:Name="RtlCheck" Content="Right-to-left" />
+        <CheckBox x:Name="ManyFieldsCheck" Content="Scrollable form" IsChecked="True" />
+      </WrapPanel>
+
+      <TextBlock Text="Check button labels, wrapping, focus visibility, and scrolling at both narrow and wide window sizes."
+                 TextWrapping="Wrap" FontSize="12" Opacity="0.62" />
+
+      <Button Content="Open adaptive dialog" Click="OnShowDialog"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="No adaptive test has run."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

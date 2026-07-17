@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.ModalCoordinationPage"
+             Classes="dialogs-and-sheets-sample">
+  <UserControl.Styles>
+    <Style Selector="Border.scenario-card">
+      <Setter Property="Padding" Value="16" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Background" Value="{DynamicResource CatalogBaseLowBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource CatalogBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="TextBlock.scenario-title">
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.scenario-description">
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="Opacity" Value="0.7" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Modal ownership &amp; sequencing" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="A TopLevel owns one modal slot. Requests are never stacked or queued implicitly; cancellation, sequencing, and reuse remain explicit in application code."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Caller cancellation" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Cancel an active ShowAsync operation from inside its content and observe the canceled task after forced cleanup."
+                     Classes="scenario-description" />
+          <Button x:Name="CancellationButton" Content="Open cancellable dialog"
+                  HorizontalAlignment="Stretch" Click="OnCancellation" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Concurrent request rejection" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Attempt a second modal while the slot is occupied, then release the slot and open the same selection correctly."
+                     Classes="scenario-description" />
+          <Button x:Name="ConcurrencyButton" Content="Test rejection and recovery"
+                  HorizontalAlignment="Stretch" Click="OnConcurrency" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Explicit sequencing" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Await the first dialog before opening the second. This is the supported application-level queue pattern."
+                     Classes="scenario-description" />
+          <Button x:Name="SequenceButton" Content="Run two-step sequence"
+                  HorizontalAlignment="Stretch" Click="OnSequence" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Reuse after close" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Show the same ContentDialog instance twice after its first operation and closing transition have completed."
+                     Classes="scenario-description" />
+          <Button x:Name="ReuseButton" Content="Reuse one dialog"
+                  HorizontalAlignment="Stretch" Click="OnReuse" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Closed-handler chaining" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Open the next dialog directly from Closed, after cleanup and modal-slot release are complete."
+                     Classes="scenario-description" />
+          <Button x:Name="ClosedChainButton" Content="Chain from Closed"
+                  HorizontalAlignment="Stretch" Click="OnClosedChain" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Owner close cleanup" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Close a secondary owner while its dialog is active and inspect the forced OwnerClosed result and cleanup."
+                     Classes="scenario-description" />
+          <TextBlock x:Name="OwnerCloseAvailabilityText" FontSize="12" TextWrapping="Wrap" Opacity="0.65" />
+          <Button x:Name="OwnerCloseButton" Content="Test owner close"
+                  HorizontalAlignment="Stretch" Click="OnOwnerClose" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="scenario-card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Independent owners" Classes="scenario-title"
+                     AutomationProperties.HeadingLevel="2" />
+          <TextBlock Text="Open one managed dialog per window to demonstrate that modal slots are scoped to their TopLevel."
+                     Classes="scenario-description" />
+          <TextBlock x:Name="TwoOwnerAvailabilityText" FontSize="12" TextWrapping="Wrap" Opacity="0.65" />
+          <Button x:Name="TwoOwnersButton" Content="Open two owner-scoped dialogs"
+                  HorizontalAlignment="Stretch" Click="OnTwoOwners" />
+        </StackPanel>
+      </Border>
+
+      <TextBlock Text="Event log" FontSize="13" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="Choose a scenario."
+                   MinHeight="64" TextWrapping="Wrap"
+                   FontFamily="Cascadia Code,Consolas,Menlo,monospace"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

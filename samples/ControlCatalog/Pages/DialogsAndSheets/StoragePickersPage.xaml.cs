@@ -1,26 +1,25 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Dialogs;
-using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 
 namespace ControlCatalog.Pages
 {
-    public partial class DialogsPage : ContentPage
+    public partial class StoragePickersPage : UserControl
     {
-        public DialogsPage()
+        public StoragePickersPage()
         {
             InitializeComponent();
 
             IStorageFolder? lastSelectedDirectory = null;
             IStorageItem? lastSelectedItem = null;
             bool ignoreTextChanged = false;
+            bool pickerOperationInProgress = false;
+            var startLocationVersion = 0;
 
             var results = PickerLastResults;
             var resultsVisible = PickerLastResultsVisible;
@@ -31,35 +30,89 @@ namespace ControlCatalog.Pages
             var useSuggestedFilter = UseSuggestedFilter;
             var suggestedFilterSelector = SuggestedFilterSelector;
 
-            currentFolderBox.TextChanged += async (sender, args) =>
+            async Task UpdateStartLocationAsync()
             {
-                if (ignoreTextChanged) return;
+                if (ignoreTextChanged)
+                    return;
 
-                if (Enum.TryParse<WellKnownFolder>(currentFolderBox.Text, true, out var folderEnum))
+                var version = ++startLocationVersion;
+                var text = currentFolderBox.Text;
+                await Task.Delay(180);
+                if (version != startLocationVersion)
+                    return;
+
+                try
                 {
-                    lastSelectedDirectory = await GetStorageProvider().TryGetWellKnownFolderAsync(folderEnum);
-                }
-                else if (!string.IsNullOrWhiteSpace(currentFolderBox.Text))
-                {
-                    if (!Uri.TryCreate(currentFolderBox.Text, UriKind.Absolute, out var folderLink))
+                    IStorageFolder? resolvedFolder = null;
+                    if (Enum.TryParse<WellKnownFolder>(text, true, out var folderEnum))
                     {
-                        Uri.TryCreate("file://" + currentFolderBox.Text, UriKind.Absolute, out folderLink);
+                        resolvedFolder = await GetStorageProvider().TryGetWellKnownFolderAsync(folderEnum);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        if (!Uri.TryCreate(text, UriKind.Absolute, out var folderLink))
+                        {
+                            Uri.TryCreate("file://" + text, UriKind.Absolute, out folderLink);
+                        }
+
+                        if (folderLink is not null)
+                            resolvedFolder = await GetStorageProvider().TryGetFolderFromPathAsync(folderLink);
                     }
 
-                    if (folderLink is not null)
-                    {
-                        try
-                        {
-                            lastSelectedDirectory = await GetStorageProvider().TryGetFolderFromPathAsync(folderLink);
-                        }
-                        catch (SecurityException)
-                        {
-                        
-                        }
-                    }
+                    if (version == startLocationVersion)
+                        lastSelectedDirectory = resolvedFolder;
                 }
-            };
+                catch (Exception exception)
+                {
+                    if (version == startLocationVersion)
+                        openedFileContent.Text = $"Start location is unavailable: {exception.Message}";
+                }
+            }
 
+            async Task RunPickerOperationAsync(Func<Task> operation)
+            {
+                if (pickerOperationInProgress)
+                {
+                    openedFileContent.Text = "A picker operation is already in progress.";
+                    return;
+                }
+
+                pickerOperationInProgress = true;
+                try
+                {
+                    await operation();
+                }
+                catch (OperationCanceledException)
+                {
+                    openedFileContent.Text = "The picker operation was canceled.";
+                }
+                catch (Exception exception)
+                {
+                    openedFileContent.Text = $"The picker operation failed: {exception.Message}";
+                }
+                finally
+                {
+                    pickerOperationInProgress = false;
+                }
+            }
+
+            async Task RunLauncherOperationAsync(Func<Task> operation)
+            {
+                try
+                {
+                    await operation();
+                }
+                catch (OperationCanceledException)
+                {
+                    LaunchStatus.Text = "The launch request was canceled.";
+                }
+                catch (Exception exception)
+                {
+                    LaunchStatus.Text = $"The launch request failed: {exception.Message}";
+                }
+            }
+
+            currentFolderBox.TextChanged += (_, _) => _ = UpdateStartLocationAsync();
 
             List<FilePickerFileType>? BuildFileTypes()
             {
@@ -157,44 +210,7 @@ namespace ControlCatalog.Pages
             FilterSelector.SelectionChanged += (_, _) => UpdateSuggestedFilterSelector(BuildFileTypes());
             UpdateSuggestedFilterSelector(BuildFileTypes());
 
-            DecoratedWindow.Click += delegate
-            {
-                new DecoratedWindow().Show();
-            };
-            DecoratedWindowDialog.Click += delegate
-            {
-                _ = new DecoratedWindow().ShowDialog(GetWindow());
-            };
-            Dialog.Click += delegate
-            {
-                var window = CreateSampleWindow();
-                window.Height = 200;
-                _ = window.ShowDialog(GetWindow());
-            };
-            DialogNoTaskbar.Click += delegate
-            {
-                var window = CreateSampleWindow();
-                window.Height = 200;
-                window.ShowInTaskbar = false;
-                _ = window.ShowDialog(GetWindow());
-            };
-            OwnedWindow.Click += delegate
-            {
-                var window = CreateSampleWindow();
-
-                window.Show(GetWindow());
-            };
-
-            OwnedWindowNoTaskbar.Click += delegate
-            {
-                var window = CreateSampleWindow();
-
-                window.ShowInTaskbar = false;
-
-                window.Show(GetWindow());
-            };
-
-            OpenFilePicker.Click += async delegate
+            OpenFilePicker.Click += (_, _) => _ = RunPickerOperationAsync(async () =>
             {
                 var fileTypes = GetFileTypes();
                 var result = await GetStorageProvider().OpenFilePickerAsync(new FilePickerOpenOptions()
@@ -208,8 +224,8 @@ namespace ControlCatalog.Pages
                 });
 
                 await SetPickerResult(result);
-            };
-            SaveFilePicker.Click += async delegate
+            });
+            SaveFilePicker.Click += (_, _) => _ = RunPickerOperationAsync(async () =>
             {
                 var fileTypes = GetFileTypes();
                 var suggestedType = GetSuggestedFileType(fileTypes);
@@ -241,8 +257,8 @@ namespace ControlCatalog.Pages
                 }
 
                 await SetPickerResult(file is null ? null : new[] { file });
-            };
-            SaveFilePickerWithResult.Click += async delegate
+            });
+            SaveFilePickerWithResult.Click += (_, _) => _ = RunPickerOperationAsync(async () =>
             {
                 var saveFileTypes = new[] { FilePickerFileTypes.Json, FilePickerFileTypes.Xml };
                 var result = await GetStorageProvider().SaveFilePickerWithResultAsync(new FilePickerSaveOptions()
@@ -280,8 +296,8 @@ namespace ControlCatalog.Pages
                 }
 
                 await SetPickerResult(result.File is null ? null : new[] { result.File }, result.SelectedFileType);
-            };
-            OpenFolderPicker.Click += async delegate
+            });
+            OpenFolderPicker.Click += (_, _) => _ = RunPickerOperationAsync(async () =>
             {
                 var folders = await GetStorageProvider().OpenFolderPickerAsync(new FolderPickerOpenOptions()
                 {
@@ -292,51 +308,53 @@ namespace ControlCatalog.Pages
                 });
 
                 await SetPickerResult(folders);
-            };
-            OpenFileFromBookmark.Click += async delegate
+            });
+            OpenFileFromBookmark.Click += (_, _) => _ = RunPickerOperationAsync(async () =>
             {
                 var file = bookmarkContainer.Text is not null
                     ? await GetStorageProvider().OpenFileBookmarkAsync(bookmarkContainer.Text)
                     : null;
 
                 await SetPickerResult(file is null ? null : new[] { file });
-            };
-            OpenFolderFromBookmark.Click += async delegate
+            });
+            OpenFolderFromBookmark.Click += (_, _) => _ = RunPickerOperationAsync(async () =>
             {
                 var folder = bookmarkContainer.Text is not null
                     ? await GetStorageProvider().OpenFolderBookmarkAsync(bookmarkContainer.Text)
                     : null;
 
                 await SetPickerResult(folder is null ? null : new[] { folder });
-            };
-        
-            LaunchUri.Click += async delegate
+            });
+
+            LaunchUri.Click += (_, _) => _ = RunLauncherOperationAsync(async () =>
             {
-                var statusBlock = LaunchStatus;
                 if (Uri.TryCreate(UriToLaunch.Text, UriKind.Absolute, out var uri))
                 {
                     var result = await TopLevel.GetTopLevel(this)!.Launcher.LaunchUriAsync(uri);
-                    statusBlock.Text = "LaunchUriAsync returned " + result;
+                    LaunchStatus.Text = result
+                        ? "The URI was launched successfully."
+                        : "The platform declined the URI launch request.";
                 }
                 else
                 {
-                    statusBlock.Text = "Can't parse the Uri";
+                    LaunchStatus.Text = "Enter a valid absolute URI.";
                 }
-            };
+            });
 
-            LaunchFile.Click += async delegate
+            LaunchFile.Click += (_, _) => _ = RunLauncherOperationAsync(async () =>
             {
-                var statusBlock = LaunchStatus;
                 if (lastSelectedItem is not null)
                 {
                     var result = await TopLevel.GetTopLevel(this)!.Launcher.LaunchFileAsync(lastSelectedItem);
-                    statusBlock.Text = "LaunchFileAsync returned " + result;
+                    LaunchStatus.Text = result
+                        ? "The selected item was launched successfully."
+                        : "The platform declined the file launch request.";
                 }
                 else
                 {
-                    statusBlock.Text = "Please select any file or folder first";
+                    LaunchStatus.Text = "Select a file or folder before launching it.";
                 }
-            };
+            });
 
             void SetFolder(IStorageFolder? folder)
             {
@@ -349,10 +367,12 @@ namespace ControlCatalog.Pages
             async Task SetPickerResult(IReadOnlyCollection<IStorageItem>? items, FilePickerFileType? selectedType = null)
             {
                 items ??= Array.Empty<IStorageItem>();
-                bookmarkContainer.Text = items.FirstOrDefault(f => f.CanBookmark) is { } f ? await f.SaveBookmarkAsync() : "Can't bookmark";
+                bookmarkContainer.Text = items.FirstOrDefault(f => f.CanBookmark) is { } f
+                    ? await f.SaveBookmarkAsync()
+                    : "Bookmark unavailable";
                 var mappedResults = new List<string>();
 
-                string resultText = "";
+                var resultText = items.Count == 0 ? "No item was selected." : string.Empty;
                 if (items.FirstOrDefault() is IStorageItem item)
                 {
                     resultText += item is IStorageFile ? "File:" : "Folder:";
@@ -425,7 +445,7 @@ namespace ControlCatalog.Pages
             using var reader = new System.IO.StreamReader(stream);
 
             // 4GB file test, shouldn't load more than 10000 chars into a memory.
-            var buffer = ArrayPool<char>.Shared.Rent(length);
+            var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(length);
             try
             {
                 var charsRead = await reader.ReadAsync(buffer, 0, length);
@@ -433,7 +453,7 @@ namespace ControlCatalog.Pages
             }
             finally
             {
-                ArrayPool<char>.Shared.Return(buffer);
+                System.Buffers.ArrayPool<char>.Shared.Return(buffer);
             }
         }
 
@@ -455,54 +475,11 @@ CanPickFolder: {storageProvider.CanPickFolder}";
             }
         }
 
-        private Window CreateSampleWindow()
-        {
-            Button button;
-            Button dialogButton;
-
-            var window = new Window
-            {
-                Height = 200,
-                Width = 200,
-                Content = new StackPanel
-                {
-                    Spacing = 4,
-                    Children =
-                    {
-                        new TextBlock { Text = "Hello world!" },
-                        (button = new Button
-                        {
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Content = "Click to close",
-                            IsDefault = true
-                        }),
-                        (dialogButton = new Button
-                        {
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Content = "Dialog",
-                            IsDefault = false
-                        })
-                    }
-                },
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
-            };
-
-            button.Click += (_, __) => window.Close();
-            dialogButton.Click += (_, __) =>
-            {
-                var dialog = CreateSampleWindow();
-                dialog.Height = 200;
-                dialog.ShowDialog(window);
-            };
-
-            return window;
-        }
-
         private IStorageProvider GetStorageProvider()
         {
             var forceManaged = ForceManaged.IsChecked ?? false;
-            return forceManaged 
-                ? new ManagedStorageProvider(GetWindow()) // NOTE: In your production App use 'AppBuilder.UseManagedSystemDialogs()'
+            return forceManaged
+                ? new ManagedStorageProvider(GetWindow())
                 : GetTopLevel().StorageProvider;
         }
 
@@ -515,5 +492,4 @@ CanPickFolder: {storageProvider.CanPickFolder}";
         Window GetWindow() => TopLevel.GetTopLevel(this) as Window ?? throw new NullReferenceException("Invalid Owner");
         TopLevel GetTopLevel() => TopLevel.GetTopLevel(this) ?? throw new NullReferenceException("Invalid Owner");
     }
-#pragma warning restore CS0618 // Type or member is obsolete
 }

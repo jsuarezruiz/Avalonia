@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.ContentDialogDeferralsPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Asynchronous validation and close deferrals" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="PrimaryButtonClick validates before accepting Save. Closing independently takes a deferral so final asynchronous work completes before the surface is removed."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="InitialValueLabel" Text="Initial value" FontWeight="SemiBold" />
+        <TextBox x:Name="InitialValueBox" Text="Avalonia" PlaceholderText="Leave empty to reject Save"
+                 AutomationProperties.LabeledBy="{Binding #InitialValueLabel}" />
+      </StackPanel>
+      <CheckBox x:Name="RequireValueCheck" Content="Require a non-empty value" IsChecked="True" />
+      <CheckBox x:Name="DeferClosingCheck" Content="Defer the Closing event" IsChecked="True" />
+
+      <Button Content="Show validation dialog" Click="OnShowDialog"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="No validation has run."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.SystemNotificationPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Application.SystemNotifications" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="System notifications are application-scoped, data-only, and delivered by the operating system. They never fall back to an Avalonia toast. Request permission explicitly, then reuse an ID to replace an existing notification."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <Border Padding="14" CornerRadius="10"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+          <TextBlock Text="Provider" FontWeight="SemiBold" />
+          <TextBlock x:Name="SupportText" Grid.Column="1" Text="Checking…"
+                     TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+          <TextBlock Grid.Row="1" Text="Permission" FontWeight="SemiBold" />
+          <TextBlock x:Name="PermissionText" Grid.Row="1" Grid.Column="1" Text="Checking…"
+                     TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+        </Grid>
+      </Border>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="IdLabel" Text="Stable ID" FontWeight="SemiBold" />
+        <TextBox x:Name="IdBox" Text="catalog.export-complete"
+                 AutomationProperties.LabeledBy="{Binding #IdLabel}" />
+      </StackPanel>
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="TitleLabel" Text="Title" FontWeight="SemiBold" />
+        <TextBox x:Name="TitleBox" Text="Design export complete"
+                 AutomationProperties.LabeledBy="{Binding #TitleLabel}" />
+      </StackPanel>
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="MessageLabel" Text="Message" FontWeight="SemiBold" />
+        <TextBox x:Name="MessageBox"
+                 Text="Marketing-kit.zip is ready to share."
+                 AutomationProperties.LabeledBy="{Binding #MessageLabel}" />
+      </StackPanel>
+
+      <WrapPanel ItemWidth="160" ItemSpacing="8" LineSpacing="8">
+        <Button x:Name="RequestPermissionButton" Content="Request permission"
+                Click="OnRequestPermission" />
+        <Button x:Name="ShowButton" Content="Show or replace"
+                Click="OnShow" Classes="accent" />
+        <Button x:Name="RemoveButton" Content="Remove ID"
+                Click="OnRemove" />
+        <Button x:Name="RemoveAllButton" Content="Remove known"
+                Click="OnRemoveAll" />
+        <Button Content="Refresh status" Click="OnRefresh" />
+      </WrapPanel>
+
+      <TextBlock Text="macOS presents foreground notifications as system banners. Mobile foreground presentation follows platform policy. Browser notifications require a secure context. Linux uses the desktop portal."
+                 TextWrapping="Wrap" FontSize="12" Opacity="0.62" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="Ready."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

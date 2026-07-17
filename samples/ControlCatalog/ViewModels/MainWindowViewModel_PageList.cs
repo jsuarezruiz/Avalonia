@@ -54,7 +54,7 @@ namespace ControlCatalog.ViewModels
             new PageItem("Data Validation",() => new DataValidationPage(), Icons.Shield),
             new PageItem("Date/Time Picker",() => new DateTimePickerPage(), Icons.Clock),
             new PageItem("CalendarDatePicker",() => new CalendarDatePickerPage(), Icons.Calendar),
-            new PageItem("Dialogs",() => new DialogsPage(), Icons.Dialog),
+            new PageItem("Dialogs & Sheets",() => new DialogsAndSheetsDemoPage(), Icons.Dialog),
             new PageItem("Drag+Drop",() => new DragAndDropPage(), Icons.DragDrop),
             new PageItem("DrawerPage",() => new DrawerDemoPage(), Icons.Drawer),
             new PageItem("Expander",() => new ExpanderPage(), Icons.Expand),

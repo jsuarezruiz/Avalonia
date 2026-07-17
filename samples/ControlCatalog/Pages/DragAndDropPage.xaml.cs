@@ -137,7 +137,7 @@ namespace ControlCatalog.Pages
                     {
                         if (item is IStorageFile file)
                         {
-                            var content = await DialogsPage.ReadTextFromFile(file, 500);
+                            var content = await StoragePickersPage.ReadTextFromFile(file, 500);
                             contentStr += $"File {item.Name}:{Environment.NewLine}{content}{Environment.NewLine}{Environment.NewLine}";
                         }
                         else if (item is IStorageFolder folder)

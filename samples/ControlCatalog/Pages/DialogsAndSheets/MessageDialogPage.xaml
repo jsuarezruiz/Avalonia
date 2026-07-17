@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.MessageDialogPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="TopLevel.MessageDialogs" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="Message dialogs use the TopLevel's native platform surface. The request is data-only, never falls back to managed UI, and returns stable action IDs independent from localized labels. Use ContentDialog for custom Avalonia content."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="TitleLabel" Text="Title" FontWeight="SemiBold" />
+        <TextBox x:Name="TitleBox" Text="Delete project?"
+                 AutomationProperties.LabeledBy="{Binding #TitleLabel}" />
+      </StackPanel>
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="MessageLabel" Text="Message" FontWeight="SemiBold" />
+        <TextBox x:Name="MessageBox" Text="This action cannot be undone."
+                 AutomationProperties.LabeledBy="{Binding #MessageLabel}" />
+      </StackPanel>
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="DetailLabel" Text="Detail" FontWeight="SemiBold" />
+        <TextBox x:Name="DetailBox" Text="The project files will be removed from this device."
+                 AutomationProperties.LabeledBy="{Binding #DetailLabel}" />
+      </StackPanel>
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="IconLabel" Text="Semantic icon" FontWeight="SemiBold" />
+        <ComboBox x:Name="IconBox" HorizontalAlignment="Stretch"
+                  AutomationProperties.LabeledBy="{Binding #IconLabel}" />
+      </StackPanel>
+      <CheckBox x:Name="ArchiveCheck" Content="Include Archive as a third action" IsChecked="True" />
+      <CheckBox x:Name="DestructiveCheck" Content="Mark Delete as destructive" IsChecked="True" />
+
+      <Button Content="Show message dialog" Click="OnShowMessage"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="No action selected."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

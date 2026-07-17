@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.ContentDialogCommandsPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="Commands and binding" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="Bind arbitrary dialog content to a view model, pass distinct command parameters, and let CanExecute control the primary action without button-click code."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="InitialProjectLabel" Text="Initial project name" FontWeight="SemiBold" />
+        <TextBox x:Name="InitialProjectBox" Text="Aurora"
+                 AutomationProperties.LabeledBy="{Binding #InitialProjectLabel}" />
+      </StackPanel>
+
+      <TextBlock Text="Clear the name inside the dialog to see Save follow the command's CanExecute state. Each action receives a different parameter."
+                 TextWrapping="Wrap" FontSize="12" Opacity="0.62" />
+
+      <Button Content="Open command-bound dialog" Click="OnShowDialog"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <StackPanel Spacing="4">
+          <TextBlock x:Name="StatusText" Text="No command has run."
+                     TextWrapping="Wrap"
+                     AutomationProperties.LiveSetting="Polite" />
+          <TextBlock x:Name="StatusDetailText"
+                     TextWrapping="Wrap" FontSize="12" Opacity="0.65" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

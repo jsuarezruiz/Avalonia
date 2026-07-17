@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ControlCatalog.Pages.BottomSheetDemoPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="BottomSheet" FontSize="22" FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="BottomSheet shares dialog ownership, focus, cancellation, and close deferrals while adding safe-area-aware edge placement, detents, and drag gestures."
+                 TextWrapping="Wrap" Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="InitialDetentLabel" Text="Initial detent" FontWeight="SemiBold" />
+        <ComboBox x:Name="InitialDetentBox" SelectedIndex="1"
+                  AutomationProperties.LabeledBy="{Binding #InitialDetentLabel}">
+          <ComboBoxItem Content="Content" />
+          <ComboBoxItem Content="Medium" />
+          <ComboBoxItem Content="Expanded" />
+          <ComboBoxItem Content="Compact · 240 px" />
+          <ComboBoxItem Content="Three quarters · 75%" />
+          <ComboBoxItem Content="Custom comfortable detent" />
+        </ComboBox>
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="TransitionLabel" Text="Transition" FontWeight="SemiBold" />
+        <ComboBox x:Name="TransitionBox" SelectedIndex="0"
+                  AutomationProperties.LabeledBy="{Binding #TransitionLabel}">
+          <ComboBoxItem Content="Theme default" />
+          <ComboBoxItem Content="None" />
+          <ComboBoxItem Content="Vertical slide · 500 ms" />
+          <ComboBoxItem Content="Cross fade · 400 ms" />
+          <ComboBoxItem Content="Composite fade + slide" />
+        </ComboBox>
+      </StackPanel>
+
+      <WrapPanel ItemSpacing="16" LineSpacing="8">
+        <CheckBox x:Name="LightDismissCheck" Content="Light dismiss" IsChecked="True" />
+        <CheckBox x:Name="DragCheck" Content="Drag enabled" IsChecked="True" />
+        <CheckBox x:Name="DragDismissCheck" Content="Drag dismiss" IsChecked="True" />
+        <CheckBox x:Name="DeferClosingCheck" Content="Defer closing" />
+        <CheckBox x:Name="CancelFirstCloseCheck" Content="Cancel first close" />
+      </WrapPanel>
+
+      <Button Content="Show BottomSheet" Click="OnShowSheet"
+              Classes="accent dialogs-primary-action" />
+
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="StatusText" Text="No result yet."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

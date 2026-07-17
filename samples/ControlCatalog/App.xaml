@@ -19,12 +19,16 @@
           <Color x:Key="CatalogBaseMediumColor">#99000000</Color>
           <Color x:Key="CatalogChromeMediumColor">#FFE6E6E6</Color>
           <Color x:Key="CatalogBaseHighColor">#FF000000</Color>
+          <SolidColorBrush x:Key="CatalogBaseLowBrush" Color="#18000000" />
+          <SolidColorBrush x:Key="CatalogBorderBrush" Color="#28000000" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
           <Color x:Key="CatalogBaseLowColor">#33FFFFFF</Color>
           <Color x:Key="CatalogBaseMediumColor">#99FFFFFF</Color>
           <Color x:Key="CatalogChromeMediumColor">#FF1F1F1F</Color>
           <Color x:Key="CatalogBaseHighColor">#FFFFFFFF</Color>
+          <SolidColorBrush x:Key="CatalogBaseLowBrush" Color="#18FFFFFF" />
+          <SolidColorBrush x:Key="CatalogBorderBrush" Color="#38FFFFFF" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
 
@@ -58,6 +62,65 @@
     </Style>
     <Style Selector="Label.h3">
       <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="UserControl.dialogs-and-sheets-sample Button, ContentDialog Button, BottomSheet Button">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.dialogs-primary-action">
+      <Setter Property="MinWidth" Value="200" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.gift-card-close">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="#B3FFFFFF" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="22" />
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="Button.gift-card-close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#24FFFFFF" />
+      <Setter Property="BorderBrush" Value="#38FFFFFF" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.gift-card-close:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#40FFFFFF" />
+      <Setter Property="BorderBrush" Value="#58FFFFFF" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.gift-card-close:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#24FFFFFF" />
+      <Setter Property="BorderBrush" Value="#FFFFD700" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.gift-card-claim:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+          <GradientStop Color="#FFE44D" Offset="0" />
+          <GradientStop Color="#FFB733" Offset="1" />
+        </LinearGradientBrush>
+      </Setter>
+      <Setter Property="BorderBrush" Value="#70FFE066" />
+      <Setter Property="Foreground" Value="Black" />
+    </Style>
+    <Style Selector="Button.gift-card-claim:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+          <GradientStop Color="#F2C900" Offset="0" />
+          <GradientStop Color="#F29A00" Offset="1" />
+        </LinearGradientBrush>
+      </Setter>
+      <Setter Property="BorderBrush" Value="#90FFD84D" />
+      <Setter Property="Foreground" Value="Black" />
+    </Style>
+    <Style Selector="Button.gift-card-claim:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="White" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="Foreground" Value="Black" />
     </Style>
   </Application.Styles>
   <NativeDock.Menu>

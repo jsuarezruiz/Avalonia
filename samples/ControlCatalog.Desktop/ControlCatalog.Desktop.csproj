@@ -8,6 +8,16 @@
     <UseMicroCom>true</UseMicroCom>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CFBundleName>ControlCatalog.Desktop</CFBundleName>
+    <CFBundleDisplayName>Avalonia Control Gallery</CFBundleDisplayName>
+    <CFBundleIdentifier>net.avaloniaui.controlcatalog</CFBundleIdentifier>
+    <CFBundleIconFile>ControlCatalog.Desktop.icns</CFBundleIconFile>
+    <CFBundlePackageType>APPL</CFBundlePackageType>
+    <CFBundleShortVersionString>1.0.0</CFBundleShortVersionString>
+    <NSHighResolutionCapable>true</NSHighResolutionCapable>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\src\Avalonia.X11\NativeDialogs\Gtk.cs" Link="NativeControls\Gtk\Gtk.cs" />
     <Compile Include="..\..\src\Avalonia.X11\Interop\Glib.cs" Link="NativeControls\Gtk\Glib.cs" />
@@ -21,6 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Assets\ControlCatalog.Desktop.icns">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>ControlCatalog.Desktop.icns</TargetPath>
+    </None>
+    <PackageReference Include="Dotnet.Bundle" PrivateAssets="all" />
     <ProjectReference Include="..\..\src\Headless\Avalonia.Headless.Vnc\Avalonia.Headless.Vnc.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Dialogs\Avalonia.Dialogs.csproj" />
     <ProjectReference Include="..\..\src\Linux\Avalonia.LinuxFramebuffer\Avalonia.LinuxFramebuffer.csproj" />

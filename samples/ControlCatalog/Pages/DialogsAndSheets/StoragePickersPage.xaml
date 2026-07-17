@@ -1,0 +1,155 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:storage="clr-namespace:Avalonia.Platform.Storage;assembly=Avalonia.Base"
+             xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Collections"
+             x:Class="ControlCatalog.Pages.StoragePickersPage"
+             Classes="dialogs-and-sheets-sample">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch">
+    <StackPanel Margin="20" Spacing="12" HorizontalAlignment="Stretch">
+      <TextBlock Text="File &amp; folder pickers"
+                 FontSize="22"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="1" />
+      <TextBlock Text="Exercise the TopLevel storage provider with filters, suggested types, multiple selection, bookmarks, start locations, and launcher integration."
+                 TextWrapping="Wrap"
+                 Opacity="0.7" />
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="FilterLabel"
+                   Text="File type filter"
+                   FontWeight="SemiBold" />
+        <ComboBox x:Name="FilterSelector"
+                  SelectedIndex="0"
+                  HorizontalAlignment="Stretch"
+                  AutomationProperties.LabeledBy="{Binding #FilterLabel}">
+          <ComboBoxItem>None</ComboBoxItem>
+          <ComboBoxItem>All + TXT + BinLog</ComboBoxItem>
+          <ComboBoxItem>Binlog</ComboBoxItem>
+          <ComboBoxItem>TXT extension only</ComboBoxItem>
+          <ComboBoxItem>TXT mime only</ComboBoxItem>
+          <ComboBoxItem>TXT apple type id only</ComboBoxItem>
+        </ComboBox>
+      </StackPanel>
+
+      <WrapPanel ItemSpacing="16" LineSpacing="8">
+        <CheckBox x:Name="UseSuggestedFilter"
+                  Content="Use suggested file type" />
+        <CheckBox x:Name="ForceManaged"
+                  Content="Force managed picker" />
+        <CheckBox x:Name="OpenMultiple"
+                  Content="Allow multiple selection" />
+      </WrapPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="SuggestedFilterLabel"
+                   Text="Suggested file type"
+                   FontWeight="SemiBold" />
+        <ComboBox x:Name="SuggestedFilterSelector"
+                  HorizontalAlignment="Stretch"
+                  AutomationProperties.LabeledBy="{Binding #SuggestedFilterLabel}">
+          <ComboBoxItem>First filter</ComboBoxItem>
+        </ComboBox>
+      </StackPanel>
+
+      <TextBlock Text="Picker actions"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <WrapPanel ItemWidth="190" ItemSpacing="8" LineSpacing="8">
+        <Button x:Name="OpenFolderPicker"
+                Content="Select folder"
+                HorizontalContentAlignment="Center" />
+        <Button x:Name="OpenFilePicker"
+                Content="Open file"
+                HorizontalContentAlignment="Center" />
+        <Button x:Name="SaveFilePicker"
+                Content="Save file"
+                HorizontalContentAlignment="Center" />
+        <Button x:Name="SaveFilePickerWithResult"
+                Content="Save XML or JSON"
+                HorizontalContentAlignment="Center" />
+      </WrapPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="StartLocationLabel"
+                   Text="Start location"
+                   FontWeight="SemiBold" />
+        <AutoCompleteBox x:Name="CurrentFolderBox"
+                         PlaceholderText="Full path, URI, or well-known folder"
+                         AutomationProperties.LabeledBy="{Binding #StartLocationLabel}">
+          <AutoCompleteBox.ItemsSource>
+            <generic:List x:TypeArguments="storage:WellKnownFolder">
+              <storage:WellKnownFolder>Desktop</storage:WellKnownFolder>
+              <storage:WellKnownFolder>Documents</storage:WellKnownFolder>
+              <storage:WellKnownFolder>Downloads</storage:WellKnownFolder>
+              <storage:WellKnownFolder>Pictures</storage:WellKnownFolder>
+              <storage:WellKnownFolder>Videos</storage:WellKnownFolder>
+              <storage:WellKnownFolder>Music</storage:WellKnownFolder>
+            </generic:List>
+          </AutoCompleteBox.ItemsSource>
+        </AutoCompleteBox>
+      </StackPanel>
+
+      <TextBlock Text="Bookmarks"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="BookmarkLabel" Text="Bookmark value" FontWeight="SemiBold" />
+        <TextBox x:Name="BookmarkContainer"
+                 PlaceholderText="Bookmark returned by a picker"
+                 AutomationProperties.LabeledBy="{Binding #BookmarkLabel}" />
+      </StackPanel>
+      <WrapPanel ItemWidth="190" ItemSpacing="8" LineSpacing="8">
+        <Button x:Name="OpenFileFromBookmark"
+                Content="Open file bookmark"
+                HorizontalContentAlignment="Center" />
+        <Button x:Name="OpenFolderFromBookmark"
+                Content="Open folder bookmark"
+                HorizontalContentAlignment="Center" />
+      </WrapPanel>
+
+      <TextBlock Text="Launcher"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <StackPanel Spacing="6">
+        <TextBlock x:Name="UriLabel" Text="URI" FontWeight="SemiBold" />
+        <TextBox x:Name="UriToLaunch"
+                 PlaceholderText="URI to launch"
+                 Text="https://avaloniaui.net/"
+                 AutomationProperties.LabeledBy="{Binding #UriLabel}" />
+      </StackPanel>
+      <WrapPanel ItemWidth="190" ItemSpacing="8" LineSpacing="8">
+        <Button x:Name="LaunchUri"
+                Content="Launch URI"
+                HorizontalContentAlignment="Center" />
+        <Button x:Name="LaunchFile"
+                Content="Launch selected item"
+                HorizontalContentAlignment="Center" />
+      </WrapPanel>
+      <Border Padding="12" CornerRadius="8"
+              Background="{DynamicResource CatalogBaseLowBrush}">
+        <TextBlock x:Name="LaunchStatus"
+                   Text="No launch request has run."
+                   TextWrapping="Wrap"
+                   AutomationProperties.LiveSetting="Polite" />
+      </Border>
+
+      <TextBlock x:Name="PickerLastResultsVisible"
+                 IsVisible="False"
+                 Text="Selected items"
+                 FontWeight="SemiBold"
+                 AutomationProperties.HeadingLevel="2" />
+      <ItemsControl x:Name="PickerLastResults" />
+
+      <TextBlock x:Name="FileContentLabel"
+                 Text="File content and picker details"
+                 FontWeight="SemiBold" />
+      <TextBox x:Name="OpenedFileContent"
+               AcceptsReturn="True"
+               MaxLines="10"
+               TextWrapping="Wrap"
+               PlaceholderText="Picked file content"
+               AutomationProperties.LabeledBy="{Binding #FileContentLabel}" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
