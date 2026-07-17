@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Embedding;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -19,6 +20,28 @@ namespace Avalonia.Controls.UnitTests
 {
     public class TopLevelTests : ScopedTestBase
     {
+        [Fact]
+        public void Embedded_Root_Dispose_Raises_Closed_When_Platform_Does_Not()
+        {
+            using (UnitTestApplication.Start(TestServices.StyledWindow))
+            {
+                var platform = CreateMockTopLevelImpl();
+                var root = new EmbeddableControlRoot(platform.Object);
+                var closed = 0;
+                root.Closed += (_, _) => closed++;
+
+                root.Dispose();
+                root.Dispose();
+
+                // A platform that reports closure asynchronously after Dispose must not
+                // be able to run the managed teardown path twice.
+                platform.Object.Closed?.Invoke();
+
+                Assert.Equal(1, closed);
+                platform.Verify(x => x.Dispose(), Times.Once);
+            }
+        }
+
         [Fact]
         public void IsAttachedToLogicalTree_Is_True()
         {
